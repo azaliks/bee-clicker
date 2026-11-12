@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Пчелиная жизнь 🐝</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --yellow:#ffd45b;
+  --orange:#edaa32;
+  --green:#527b48;
+  --dark:#263c2c;
+  --cream:#fff9e9;
+  --muted:#8b927c;
+}
+
+* { box-sizing:border-box; }
+
+body {
+  margin:0;
+  min-height:100vh;
+  font-family:'Nunito',sans-serif;
+  color:var(--dark);
+  background:
+    radial-gradient(ellipse at 10% 10%,#fff1bc 0%,transparent 35%),
+    radial-gradient(ellipse at 90% 80%,#d5e9c2 0%,transparent 40%),
+    #f6f4e6;
+  overflow-x:hidden;
+}
+
+button { font-family:inherit; cursor:pointer; }
+
+header {
+  max-width:1100px;
+  margin:auto;
+  padding:25px 22px 10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.logo {
+  font-size:25px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.logo span { color:#d59b26; }
+
+.header-tag {
+  background:#fff;
+  padding:9px 15px;
+  border-radius:30px;
+  font-size:13px;
+  font-weight:800;
+  color:var(--green);
+  box-shadow:0 4px 15px #58663b12;
+}
+
+.container {
+  max-width:1100px;
+  margin:20px auto 50px;
+  padding:0 20px;
+}
+
+.hero {
+  text-align:center;
+  margin:30px 0 25px;
+}
+
+h1 {
+  font-size:clamp(32px,6vw,52px);
+  margin:0;
+  font-weight:900;
+  letter-spacing:-2px;
+}
+
+.subtitle {
+  color:#899079;
+  font-size:15px;
+  margin-top:7px;
+}
+
+.stats {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:13px;
+  margin:25px 0;
+}
+
+.stat {
+  background:#ffffffc9;
+  border:1px solid #fff;
+  box-shadow:0 7px 24px #53633b0c;
+  border-radius:20px;
+  padding:17px;
+  text-align:center;
+}
+
+.stat-icon { font-size:25px; }
+
+.stat-value {
+  font-size:clamp(20px,4vw,27px);
+  font-weight:900;
+  margin:3px 0;
+}
+
+.stat-label {
+  font-size:12px;
+  color:#929984;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:1px;
+}
+
+.game-layout {
+  display:grid;
+  grid-template-columns:1.15fr .85fr;
+  gap:18px;
+}
+
+.panel {
+  background:#ffffffd9;
+  border:1px solid #fff;
+  border-radius:27px;
+  padding:23px;
+  box-shadow:0 12px 35px #59683a0d;
+}
+
+.field {
+  min-height:350px;
+  border-radius:22px;
+  background:
+    radial-gradient(ellipse at 50% 90%,#a4c77c 0%,transparent 60%),
+    linear-gradient(160deg,#e8f4d8,#f8f5d8);
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+.field::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  opacity:.3;
+  background-image:
+    radial-gradient(#fff 2px,transparent 2px);
+  background-size:36px 36px;
+  pointer-events:none;
+}
+
+.field-title {
+  position:absolute;
+  top:17px;
+  font-size:12px;
+  color:#728b5e;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.flower-button {
+  border:0;
+  background:transparent;
+  position:relative;
+  z-index:2;
+  font-size:125px;
+  line-height:1;
+  padding:20px;
+  transition:transform .12s;
+  filter:drop-shadow(0 10px 8px #718b4333);
+  -webkit-tap-highlight-color:transparent;
+}
+
+.flower-button:hover { transform:scale(1.06) rotate(-4deg); }
+.flower-button:active { transform:scale(.88) rotate(5deg); }
+
+.click-hint {
+  position:relative;
+  z-index:2;
+  font-size:14px;
+  font-weight:800;
+  color:#68845a;
+}
+
+.bee {
+  position:absolute;
+  font-size:25px;
+  pointer-events:none;
+  animation:fly 5s ease-in-out infinite;
+  z-index:1;
+}
+
+.bee.one { top:22%;left:13%; }
+.bee.two { top:63%;right:12%;animation-delay:1.5s; }
+.bee.three { top:33%;right:20%;animation-delay:3s; }
+
+@keyframes fly {
+  0%,100% { transform:translate(0,0) rotate(-10deg); }
+  50% { transform:translate(20px,-18px) rotate(10deg); }
+}
+
+.click-effect {
+  position:absolute;
+  font-size:24px;
+  font-weight:900;
+  color:#bf8c20;
+  pointer-events:none;
+  z-index:5;
+  animation:floatUp .8s ease-out forwards;
+}
+
+@keyframes floatUp {
+  to { transform:translateY(-75px);opacity:0; }
+}
+
+.care {
+  margin-top:18px;
+  background:#f2f6e9;
+  border-radius:17px;
+  padding:15px;
+}
+
+.care-top {
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
+  font-weight:900;
+  margin-bottom:9px;
+}
+
+.progress {
+  height:11px;
+  background:#dce6d0;
+  border-radius:20px;
+  overflow:hidden;
+}
+
+.progress-fill {
+  height:100%;
+  width:0%;
+  border-radius:20px;
+  background:linear-gradient(90deg,#91bd6a,#e3bd4a);
+  transition:width .4s;
+}
+
+.care-note {
+  font-size:12px;
+  color:#89927c;
+  margin-top:9px;
+}
+
+.section-title {
+  font-size:21px;
+  font-weight:900;
+  margin:0 0 5px;
+}
+
+.section-subtitle {
+  color:#929984;
+  font-size:13px;
+  margin-bottom:17px;
+}
+
+.shop-list {
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+}
+
+.shop-item {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#f8f8ef;
+  border:1px solid #f0f0e4;
+  padding:12px;
+  border-radius:17px;
+  transition:.2s;
+}
+
+.shop-item:hover { background:#f2f5e7; }
+
+.item-icon {
+  width:48px;
+  height:48px;
+  flex-shrink:0;
+  border-radius:14px;
+  background:#fff;
+  display:grid;
+  place-items:center;
+  font-size:27px;
+}
+
+.item-info { flex:1;min-width:0; }
+
+.item-name {
+  font-size:14px;
+  font-weight:900;
+}
+
+.item-desc {
+  font-size:11px;
+  color:#909781;
+  margin-top:2px;
+}
+
+.item-level {
+  font-size:11px;
+  font-weight:800;
+  color:#718d5d;
+  margin-top:3px;
+}
+
+.buy {
+  border:0;
+  border-radius:12px;
+  padding:10px 12px;
+  background:#f4d36e;
+  color:#624b16;
+  font-size:12px;
+  font-weight:900;
+  min-width:78px;
+  transition:.2s;
+}
+
+.buy:hover { background:#edc24b;transform:translateY(-2px); }
+.buy:disabled { background:#e8e9dc;color:#a3a692;cursor:not-allowed;transform:none; }
+
+.bottom {
+  margin-top:18px;
+  text-align:center;
+  font-size:12px;
+  color:#929984;
+}
+
+.message {
+  margin-top:18px;
+  padding:14px;
+  background:#fff7dd;
+  border:1px solid #f3e8bf;
+  border-radius:16px;
+  text-align:center;
+  font-weight:800;
+  font-size:13px;
+  color:#90702b;
+}
+
+.reset {
+  margin-top:18px;
+  border:0;
+  background:transparent;
+  color:#a0a18e;
+  font-size:12px;
+  text-decoration:underline;
+}
+
+@media(max-width:700px) {
+  header { padding-top:18px; }
+  .game-layout { grid-template-columns:1fr; }
+  .stats { gap:8px; }
+  .stat { padding:13px 5px; }
+  .panel { padding:16px; }
+  .field { min-height:300px; }
+  .flower-button { font-size:110px; }
+  .hero { margin-top:20px; }
+}
+
+@media(max-width:370px) {
+  .item-desc { font-size:10px; }
+  .buy { min-width:65px;padding:9px 7px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">🐝 Пчелиная<span> жизнь</span></div>
+  <div class="header-tag">🌼 Место добрых дел</div>
+</header>
+
+<main class="container">
+
+  <div class="hero">
+    <h1>Мир пчёл</h1>
+    <div class="subtitle">Маленькие крылышки — огромная польза для планеты 💛</div>
+  </div>
+
+  <section class="stats">
+    <div class="stat">
+      <div class="stat-icon">🌸</div>
+      <div class="stat-value" id="nectar">0</div>
+      <div class="stat-label">Нектар</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">🍯</div>
+      <div class="stat-value" id="honey">0</div>
+      <div class="stat-label">Мёд</div>
+    </div>
+    <div class="stat">
+      <div class="stat-icon">🐝</div>
+      <div class="stat-value" id="bees">3</div>
+      <div class="stat-label">Пчёлки рядом</div>
+    </div>
+  </section>
+
+  <div class="game-layout">
+
+    <section class="panel">
+      <div class="field" id="field">
+        <div class="field-title">ТВОЯ МАЛЕНЬКАЯ ЛУЖАЙКА</div>
+        <div class="bee one">🐝</div>
+        <div class="bee two">🐝</div>
+        <div class="bee three">🐝</div>
+
+        <button class="flower-button" id="flower" aria-label="Собрать нектар">🌻</button>
+        <div class="click-hint">Нажимай на цветок, чтобы собирать нектар!</div>
+      </div>
+
+      <div class="care">
+        <div class="care-top">
+          <span>💚 Забота о пчёлах</span>
+          <span id="carePercent">0%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-fill" id="careFill"></div>
+        </div>
+        <div class="care-note" id="careText">Начни с посадки цветов — пчёлки будут рады!</div>
+      </div>
+
+      <div class="message" id="message">
+        «Когда исчезнут пчёлы, человечеству останется жить всего несколько лет» — популярная цитата, но не достоверно установленный прогноз. А вот их роль в природе действительно огромна! 🌍
+      </div>
+
+      <div style="text-align:center">
+        <button class="reset" id="reset">Сбросить прогресс</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2 class="section-title">Помоги пчёлкам 🌷</h2>
+      <div class="section-subtitle">Покупай улучшения и создавай уютный мир для опылителей.</div>
+
+      <div class="shop-list" id="shop"></div>
+    </section>
+
+  </div>
+
+  <div class="bottom">
+    Сделано с любовью к маленьким трудягам 🐝<br>
+    Не тревожь пчёл, не разрушай их гнёзда и сажай растения-медоносы.
+  </div>
+
+</main>
+
+<script>
+const upgrades = [
+  {
+    id:"flowers",
+    icon:"🌼",
+    name:"Цветочная поляна",
+    desc:"Больше цветов — больше нектара",
+    base:15,
+    power:1,
+    care:5
+  },
+  {
+    id:"lavender",
+    icon:"💜",
+    name:"Лавандовый сад",
+    desc:"Ароматный рай для опылителей",
+    base:60,
+    power:4,
+    care:10
+  },
+  {
+    id:"sunflowers",
+    icon:"🌻",
+    name:"Поле подсолнухов",
+    desc:"Целое море вкусного нектара",
+    base:180,
+    power:12,
+    care:15
+  },
+  {
+    id:"water",
+    icon:"💧",
+    name:"Поилка для пчёл",
+    desc:"Безопасное место, чтобы попить",
+    base:350,
+    power:20,
+    care:25
+  },
+  {
+    id:"meadow",
+    icon:"🌳",
+    name:"Дикий луг",
+    desc:"Природный дом для множества видов",
+    base:900,
+    power:55,
+    care:35
+  },
+  {
+    id:"sanctuary",
+    icon:"🏡",
+    name:"Заповедный уголок",
+    desc:"Защищённое место для опылителей",
+    base:2500,
+    power:150,
+    care:50
+  }
+];
+
+let state = {
+  nectar:0,
+  honey:0,
+  clicks:0,
+  totalNectar:0,
+  upgrades:{},
+  bees:3
+};
+
+function loadGame() {
+  try {
+    const saved = localStorage.getItem("beeRespectClicker");
+    if(saved) {
+      const parsed = JSON.parse(saved);
+      state = {...state,...parsed};
+    }
+  } catch(e) {
+    console.warn("Не удалось загрузить сохранение",e);
+  }
+}
+
+function saveGame() {
+  localStorage.setItem("beeRespectClicker",JSON.stringify(state));
+}
+
+function getLevel(id) {
+  return state.upgrades[id] || 0;
+}
+
+function getCost(item) {
+  return Math.floor(item.base * Math.pow(1.55,getLevel(item.id)));
+}
+
+function getIncome() {
+  return upgrades.reduce((sum,item) => {
+    return sum + getLevel(item.id) * item.power;
+  },0);
+}
+
+function getCare() {
+  const total = upgrades.reduce((sum,item) => {
+    return sum + getLevel(item.id) * item.care;
+  },0);
+
+  return Math.min(100,total);
+}
+
+function format(value) {
+  if(value < 1000) return Math.floor(value).toLocaleString("ru-RU");
+  if(value < 1000000) return (value/1000).toFixed(1).replace(".",",")+" тыс.";
+  return (value/1000000).toFixed(2).replace(".",",")+" млн.";
+}
+
+function renderShop() {
+  const shop = document.getElementById("shop");
+  shop.innerHTML = "";
+
+  upgrades.forEach(item => {
+    const level = getLevel(item.id);
+    const cost = getCost(item);
+
+    const card = document.createElement("div");
+    card.className = "shop-item";
+
+    card.innerHTML = `
+      <div class="item-icon">${item.icon}</div>
+      <div class="item-info">
+        <div class="item-name">${item.name}</div>
+        <div class="item-desc">${item.desc}</div>
+        <div class="item-level">Уровень ${level} · +${item.power}/сек.</div>
+      </div>
+      <button class="buy" ${state.nectar < cost ? "disabled" : ""}>
+        🌸 ${format(cost)}
+      </button>
+    `;
+
+    card.querySelector("button").addEventListener("click",() => buyUpgrade(item.id));
+    shop.appendChild(card);
+  });
+}
+
+function render() {
+  document.getElementById("nectar").textContent = format(state.nectar);
+  document.getElementById("honey").textContent = format(state.honey);
+  document.getElementById("bees").textContent = format(state.bees);
+
+  const care = getCare();
+  document.getElementById("carePercent").textContent = care+"%";
+  document.getElementById("careFill").style.width = care+"%";
+
+  let careText = "Начни с посадки цветов — пчёлки будут рады!";
+  if(care >= 25) careText = "Пчёлкам становится уютнее! 🌱";
+  if(care >= 50) careText = "Уже настоящий пчелиный рай! 💚";
+  if(care >= 75) careText = "Ты замечательный хранитель природы! 🌳";
+  if(care >= 100) careText = "Идеальный уголок для опылителей! 🐝";
+
+  document.getElementById("careText").textContent = careText;
+  renderShop();
+}
+
+function addNectar(amount) {
+  state.nectar += amount;
+  state.totalNectar += amount;
+  state.honey = Math.floor(state.totalNectar / 100);
+}
+
+function clickFlower(event) {
+  const flower = document.getElementById("flower");
+  const field = document.getElementById("field");
+
+  state.clicks++;
+  const gain = 1 + Math.floor(getCare()/25);
+  addNectar(gain);
+
+  const rect = field.getBoundingClientRect();
+  const x = event.clientX ? event.clientX - rect.left : rect.width/2;
+  const y = event.clientY ? event.clientY - rect.top : rect.height/2;
+
+  const effect = document.createElement("div");
+  effect.className = "click-effect";
+  effect.textContent = "+"+gain+" 🌸";
+  effect.style.left = x+"px";
+  effect.style.top = y+"px";
+  field.appendChild(effect);
+
+  setTimeout(() => effect.remove(),800);
+
+  render();
+  saveGame();
+}
+
+function buyUpgrade(id) {
+  const item = upgrades.find(x => x.id === id);
+  if(!item) return;
+
+  const cost = getCost(item);
+  if(state.nectar < cost) return;
+
+  state.nectar -= cost;
+  state.upgrades[id] = getLevel(id)+1;
+
+  // Чем больше заботы, тем больше пчёлок прилетает на лужайку.
+  state.bees = 3 + upgrades.reduce((sum,x) => sum + getLevel(x.id)*2,0);
+
+  render();
+  saveGame();
+}
+
+document.getElementById("flower").addEventListener("click",clickFlower);
+
+document.getElementById("reset").addEventListener("click",() => {
+  if(confirm("Точно начать игру заново? Все пчёлки и улучшения останутся только в воспоминаниях 🥺")) {
+    localStorage.removeItem("beeRespectClicker");
+    state = {
+      nectar:0,
+      honey:0,
+      clicks:0,
+      totalNectar:0,
+      upgrades:{},
+      bees:3
+    };
+    render();
+    saveGame();
+  }
+});
+
+setInterval(() => {
+  const income = getIncome();
+
+  if(income > 0) {
+    addNectar(income);
+    render();
+    saveGame();
+  }
+},1000);
+
+loadGame();
+render();
+</script>
+
+</body>
+</html>

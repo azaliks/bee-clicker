@@ -82,6 +82,14 @@ h2{margin:0 0 15px;font-size:22px}
 footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 @media(max-width:750px){.game-grid{grid-template-columns:1fr}.world-list{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:1fr 1fr}.achievements{grid-template-columns:1fr 1fr}.world-banner h1{font-size:24px}}
 @media(max-width:420px){.stat .number{font-size:20px}.panel{padding:16px}.upgrade{gap:7px;padding:10px}.upgrade button{font-size:11px;padding:8px}}
+
+/* Экспедиции и развитие улья */
+.extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.extra-card{background:#fff;border:1px solid #f1e4c8;border-radius:18px;padding:17px;color:#493719}
+.extra-card .big-emoji{font-size:42px}
+.extra-card p{color:#947e58;font-weight:700}
+.hive-level{font-size:30px;font-weight:900;color:#c18a16}
+@media(max-width:650px){.extra-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -159,6 +167,26 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
       <div class="stat"><div class="number" id="multiplier">x1.00</div><small>Множитель дохода</small></div>
     </div>
   </section>
+
+  <section class="section panel">
+    <h2>🧭 Экспедиции</h2>
+    <p class="muted">Отправляй пчёл исследовать дальние цветочные поля. Они вернутся с нектаром и редкими находками.</p>
+    <div class="extra-grid">
+      <div class="extra-card">
+        <div class="big-emoji">🌷</div><strong>Цветочная поляна</strong>
+        <p>Экспедиция на 60 секунд. Награда зависит от твоего дохода.</p>
+        <button class="btn" id="expeditionButton">Отправить пчёл</button>
+        <p id="expeditionStatus">Пчёлки готовы к путешествию!</p>
+      </div>
+      <div class="extra-card">
+        <div class="big-emoji">🏡</div><strong>Развитие улья</strong>
+        <div class="hive-level" id="hiveLevel">Уровень 1</div>
+        <p id="hiveDescription">Каждый уровень даёт +5% к доходу.</p>
+        <button class="btn" id="hiveUpgradeButton">Улучшить улей</button>
+      </div>
+    </div>
+  </section>
+
   <section class="section" style="text-align:center">
     <button class="btn secondary" id="saveButton">💾 Сохранить игру</button>
     <button class="btn secondary" id="resetButton">🗑️ Сбросить прогресс</button>
@@ -196,7 +224,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[]};
+ return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0};
 }
 let state=defaultState();
 try{
@@ -206,6 +234,9 @@ try{
   state.upgrades={...defaultState().upgrades,...(old.upgrades||{})};
   state.unlocked=Array.isArray(old.unlocked)?old.unlocked:["garden"];
   state.earned=Array.isArray(old.earned)?old.earned:[];
+  state.hiveLevel=Math.max(1,Number(old.hiveLevel)||1);
+  state.expeditionFinish=Math.max(0,Number(old.expeditionFinish)||0);
+  state.expeditionReward=Math.max(0,Number(old.expeditionReward)||0);
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -217,7 +248,7 @@ function format(n){
  return n.toFixed(n>=100?0:n>=10?1:2)+" "+units[i];
 }
 function currentWorld(){return worldData.find(w=>w.id===state.world)||worldData[0]}
-function multiplier(){return (1+state.pollen*.12)*currentWorld().multiplier}
+function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05)*currentWorld().multiplier}
 function clickPower(){return (1+state.upgrades.flowers)*multiplier()}
 function income(){
  let value=0;
@@ -285,6 +316,52 @@ function renderAchievements(){
   root.appendChild(el);
  });
 }
+
+function expeditionRewardValue(){
+ return Math.max(250,Math.floor((income()*60+clickPower()*20+250)*multiplier()));
+}
+function renderExpedition(){
+ const now=Date.now(),button=document.getElementById("expeditionButton");
+ const status=document.getElementById("expeditionStatus");
+ if(state.expeditionFinish>now){
+  const left=Math.ceil((state.expeditionFinish-now)/1000);
+  button.disabled=true;button.textContent="Пчёлки в пути…";
+  status.textContent="Вернутся через "+left+" сек. Награда: "+format(state.expeditionReward)+" нектара";
+ }else if(state.expeditionFinish>0){
+  button.disabled=false;button.textContent="Забрать награду";
+  status.textContent="Экспедиция завершена! Пчёлки нашли целый цветочный луг.";
+ }else{
+  button.disabled=false;button.textContent="Отправить пчёл";
+  status.textContent="Награда за экспедицию: около "+format(expeditionRewardValue())+" нектара";
+ }
+ const cost=Math.floor(1000*Math.pow(1.8,state.hiveLevel-1));
+ document.getElementById("hiveLevel").textContent="Уровень "+state.hiveLevel;
+ document.getElementById("hiveDescription").textContent="Стоимость: "+format(cost)+" нектара · бонус к доходу: +"+((state.hiveLevel-1)*5)+"%";
+ const hiveButton=document.getElementById("hiveUpgradeButton");
+ hiveButton.textContent="Улучшить · "+format(cost)+" 🍯";
+ hiveButton.disabled=state.nectar<cost;
+}
+document.getElementById("expeditionButton").addEventListener("click",()=>{
+ const now=Date.now();
+ if(state.expeditionFinish>now)return;
+ if(state.expeditionFinish>0){
+  const reward=state.expeditionReward;gain(reward);
+  state.expeditionFinish=0;state.expeditionReward=0;
+  showToast("Экспедиция вернулась! +"+format(reward)+" нектара 🌷");
+ }else{
+  state.expeditionReward=expeditionRewardValue();
+  state.expeditionFinish=now+60000;
+  showToast("Пчёлки отправились в экспедицию! 🧭");
+ }
+ save();render();
+});
+document.getElementById("hiveUpgradeButton").addEventListener("click",()=>{
+ const cost=Math.floor(1000*Math.pow(1.8,state.hiveLevel-1));
+ if(state.nectar<cost)return;
+ state.nectar-=cost;state.hiveLevel++;
+ save();render();showToast("Улей улучшен! Доход вырос на 5% 🏡");
+});
+setInterval(()=>{if(state.expeditionFinish>0)renderExpedition()},1000);
 function render(){
  const w=currentWorld();
  document.getElementById("nectar").textContent=format(state.nectar);
@@ -299,7 +376,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

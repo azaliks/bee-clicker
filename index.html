@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,694 +9,478 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --yellow:#ffd45b;
-  --orange:#edaa32;
-  --green:#527b48;
-  --dark:#263c2c;
-  --cream:#fff9e9;
-  --muted:#8b927c;
+  --bg:#fff9e9;
+  --panel:#ffffffd9;
+  --text:#493719;
+  --accent:#f4bd38;
+  --muted:#947e58;
 }
-
-* { box-sizing:border-box; }
-
-body {
+*{box-sizing:border-box}
+body{
   margin:0;
+  font-family:Nunito,sans-serif;
+  color:var(--text);
+  background:linear-gradient(140deg,#fff8dc,#f9e9b9,#e7f4d7);
   min-height:100vh;
-  font-family:'Nunito',sans-serif;
-  color:var(--dark);
-  background:
-    radial-gradient(ellipse at 10% 10%,#fff1bc 0%,transparent 35%),
-    radial-gradient(ellipse at 90% 80%,#d5e9c2 0%,transparent 40%),
-    #f6f4e6;
-  overflow-x:hidden;
+  transition:background .7s;
 }
-
-button { font-family:inherit; cursor:pointer; }
-
-header {
-  max-width:1100px;
-  margin:auto;
-  padding:25px 22px 10px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:15px;
+body.world-lavender{background:linear-gradient(140deg,#f3eaff,#dfd0ff,#d9e5ff)}
+body.world-sky{background:linear-gradient(140deg,#dff8ff,#b9e9ff,#d9f3e9)}
+body.world-crystal{background:linear-gradient(140deg,#dffaff,#c6e8ff,#e9ddff)}
+button{font:inherit;cursor:pointer;border:0}
+header{
+  max-width:1150px;margin:auto;padding:25px 20px 10px;
+  display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap
 }
-
-.logo {
-  font-size:25px;
-  font-weight:900;
-  letter-spacing:-1px;
+.logo{font-size:27px;font-weight:900}
+.logo span{color:#d89c19}
+.header-info{display:flex;gap:10px;flex-wrap:wrap}
+.pill{
+  background:#ffffffc9;border:1px solid #fff;border-radius:30px;
+  padding:9px 15px;font-weight:900;box-shadow:0 4px 15px #8b682012
 }
-
-.logo span { color:#d59b26; }
-
-.header-tag {
-  background:#fff;
-  padding:9px 15px;
-  border-radius:30px;
-  font-size:13px;
-  font-weight:800;
-  color:var(--green);
-  box-shadow:0 4px 15px #58663b12;
+main{max-width:1150px;margin:auto;padding:15px 20px 50px}
+h2{margin:0 0 15px;font-size:22px}
+.section{margin-top:22px}
+.world-banner{
+  position:relative;overflow:hidden;border-radius:25px;padding:24px;
+  background:#ffffffa8;border:1px solid #fff;
+  box-shadow:0 12px 35px #80632a12;
+  display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap
 }
-
-.container {
-  max-width:1100px;
-  margin:20px auto 50px;
-  padding:0 20px;
+.world-banner h1{margin:0;font-size:29px}
+.world-banner p{margin:5px 0 0;color:var(--muted);font-weight:700}
+.world-icon{font-size:65px;animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-9px) rotate(5deg)}}
+.stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:15px
 }
-
-.hero {
-  text-align:center;
-  margin:30px 0 25px;
+.stat{
+  background:var(--panel);border:1px solid white;border-radius:19px;
+  padding:16px;text-align:center;box-shadow:0 5px 20px #80632a0b
 }
-
-h1 {
-  font-size:clamp(32px,6vw,52px);
-  margin:0;
-  font-weight:900;
-  letter-spacing:-2px;
+.stat .number{font-size:25px;font-weight:900}
+.stat small{color:var(--muted);font-weight:800}
+.game-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px
 }
-
-.subtitle {
-  color:#899079;
-  font-size:15px;
-  margin-top:7px;
+.panel{
+  background:var(--panel);border:1px solid white;border-radius:24px;
+  padding:22px;box-shadow:0 8px 25px #80632a0d
 }
-
-.stats {
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:13px;
-  margin:25px 0;
+.click-zone{text-align:center;min-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bee{
+  width:175px;height:175px;border-radius:50%;
+  display:grid;place-items:center;font-size:105px;
+  background:radial-gradient(circle,#fff8cf,#ffe7a0);
+  box-shadow:0 12px 35px #dba32b35,inset 0 0 25px #fff;
+  transition:transform .12s;user-select:none;cursor:pointer;
+  animation:beeFloat 3s ease-in-out infinite
 }
-
-.stat {
-  background:#ffffffc9;
-  border:1px solid #fff;
-  box-shadow:0 7px 24px #53633b0c;
-  border-radius:20px;
-  padding:17px;
-  text-align:center;
+.bee:active{transform:scale(.88)}
+@keyframes beeFloat{50%{transform:translateY(-7px)}}
+.click-hint{color:var(--muted);font-weight:800;margin-top:17px}
+.float-text{
+  position:fixed;pointer-events:none;font-weight:900;font-size:22px;
+  color:#d89510;text-shadow:0 2px white;z-index:10;
+  animation:rise .8s ease-out forwards
 }
-
-.stat-icon { font-size:25px; }
-
-.stat-value {
-  font-size:clamp(20px,4vw,27px);
-  font-weight:900;
-  margin:3px 0;
+@keyframes rise{to{transform:translateY(-80px);opacity:0}}
+.btn{
+  border-radius:14px;padding:12px 18px;font-weight:900;
+  background:linear-gradient(135deg,#ffd65e,#f4ad29);
+  color:#65450b;box-shadow:0 5px 14px #d9a42b30;
+  transition:.2s
 }
-
-.stat-label {
-  font-size:12px;
-  color:#929984;
-  font-weight:800;
-  text-transform:uppercase;
-  letter-spacing:1px;
+.btn:hover{transform:translateY(-2px);filter:brightness(1.04)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.secondary{background:#ffffff;border:1px solid #eee2c8;box-shadow:none}
+.upgrades{display:grid;gap:10px}
+.upgrade{
+  display:flex;align-items:center;gap:12px;padding:13px;
+  background:#fff;border:1px solid #f4ead4;border-radius:16px;
+  transition:.2s
 }
-
-.game-layout {
-  display:grid;
-  grid-template-columns:1.15fr .85fr;
-  gap:18px;
+.upgrade:hover{transform:translateX(3px)}
+.upgrade-icon{font-size:31px;width:43px;text-align:center}
+.upgrade-info{flex:1;min-width:0}
+.upgrade-info strong{display:block;font-size:15px}
+.upgrade-info small{color:var(--muted);font-weight:700}
+.upgrade button{white-space:nowrap;padding:9px 12px;font-size:13px}
+.world-list{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.world-card{
+  background:#ffffffbd;border:2px solid transparent;border-radius:19px;
+  padding:15px 10px;text-align:center;transition:.2s
 }
-
-.panel {
-  background:#ffffffd9;
-  border:1px solid #fff;
-  border-radius:27px;
-  padding:23px;
-  box-shadow:0 12px 35px #59683a0d;
+.world-card.active{border-color:#e6b43f;background:#fff9e5}
+.world-card.locked{opacity:.58}
+.world-card .emoji{font-size:35px}
+.world-card strong{display:block;margin:5px 0}
+.world-card small{color:var(--muted);font-weight:800}
+.world-card button{margin-top:9px;padding:8px 10px;font-size:12px}
+.progress{
+  height:13px;border-radius:20px;background:#eadfc8;overflow:hidden;margin:12px 0
 }
-
-.field {
-  min-height:350px;
-  border-radius:22px;
-  background:
-    radial-gradient(ellipse at 50% 90%,#a4c77c 0%,transparent 60%),
-    linear-gradient(160deg,#e8f4d8,#f8f5d8);
-  position:relative;
-  overflow:hidden;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
+.progress div{height:100%;width:0;background:linear-gradient(90deg,#f5cf57,#ed9c28);transition:width .3s}
+.prestige{
+  background:linear-gradient(135deg,#fff5d3,#ffe7ad);
+  border:1px solid white;border-radius:24px;padding:22px
 }
-
-.field::before {
-  content:"";
-  position:absolute;
-  inset:0;
-  opacity:.3;
-  background-image:
-    radial-gradient(#fff 2px,transparent 2px);
-  background-size:36px 36px;
-  pointer-events:none;
+.prestige h2{font-size:24px}
+.prestige .big{font-size:44px}
+.prestige-row{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.muted{color:var(--muted);font-weight:700}
+footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
+.toast{
+  position:fixed;bottom:25px;left:50%;transform:translate(-50%,20px);
+  background:#493719;color:white;padding:12px 20px;border-radius:30px;
+  opacity:0;pointer-events:none;transition:.3s;z-index:20;font-weight:800
 }
-
-.field-title {
-  position:absolute;
-  top:17px;
-  font-size:12px;
-  color:#728b5e;
-  font-weight:900;
-  letter-spacing:2px;
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:750px){
+  .game-grid{grid-template-columns:1fr}
+  .world-list{grid-template-columns:repeat(2,1fr)}
+  .stats{grid-template-columns:1fr 1fr}
+  .world-banner h1{font-size:24px}
 }
-
-.flower-button {
-  border:0;
-  background:transparent;
-  position:relative;
-  z-index:2;
-  font-size:125px;
-  line-height:1;
-  padding:20px;
-  transition:transform .12s;
-  filter:drop-shadow(0 10px 8px #718b4333);
-  -webkit-tap-highlight-color:transparent;
-}
-
-.flower-button:hover { transform:scale(1.06) rotate(-4deg); }
-.flower-button:active { transform:scale(.88) rotate(5deg); }
-
-.click-hint {
-  position:relative;
-  z-index:2;
-  font-size:14px;
-  font-weight:800;
-  color:#68845a;
-}
-
-.bee {
-  position:absolute;
-  font-size:25px;
-  pointer-events:none;
-  animation:fly 5s ease-in-out infinite;
-  z-index:1;
-}
-
-.bee.one { top:22%;left:13%; }
-.bee.two { top:63%;right:12%;animation-delay:1.5s; }
-.bee.three { top:33%;right:20%;animation-delay:3s; }
-
-@keyframes fly {
-  0%,100% { transform:translate(0,0) rotate(-10deg); }
-  50% { transform:translate(20px,-18px) rotate(10deg); }
-}
-
-.click-effect {
-  position:absolute;
-  font-size:24px;
-  font-weight:900;
-  color:#bf8c20;
-  pointer-events:none;
-  z-index:5;
-  animation:floatUp .8s ease-out forwards;
-}
-
-@keyframes floatUp {
-  to { transform:translateY(-75px);opacity:0; }
-}
-
-.care {
-  margin-top:18px;
-  background:#f2f6e9;
-  border-radius:17px;
-  padding:15px;
-}
-
-.care-top {
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  font-weight:900;
-  margin-bottom:9px;
-}
-
-.progress {
-  height:11px;
-  background:#dce6d0;
-  border-radius:20px;
-  overflow:hidden;
-}
-
-.progress-fill {
-  height:100%;
-  width:0%;
-  border-radius:20px;
-  background:linear-gradient(90deg,#91bd6a,#e3bd4a);
-  transition:width .4s;
-}
-
-.care-note {
-  font-size:12px;
-  color:#89927c;
-  margin-top:9px;
-}
-
-.section-title {
-  font-size:21px;
-  font-weight:900;
-  margin:0 0 5px;
-}
-
-.section-subtitle {
-  color:#929984;
-  font-size:13px;
-  margin-bottom:17px;
-}
-
-.shop-list {
-  display:flex;
-  flex-direction:column;
-  gap:11px;
-}
-
-.shop-item {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  background:#f8f8ef;
-  border:1px solid #f0f0e4;
-  padding:12px;
-  border-radius:17px;
-  transition:.2s;
-}
-
-.shop-item:hover { background:#f2f5e7; }
-
-.item-icon {
-  width:48px;
-  height:48px;
-  flex-shrink:0;
-  border-radius:14px;
-  background:#fff;
-  display:grid;
-  place-items:center;
-  font-size:27px;
-}
-
-.item-info { flex:1;min-width:0; }
-
-.item-name {
-  font-size:14px;
-  font-weight:900;
-}
-
-.item-desc {
-  font-size:11px;
-  color:#909781;
-  margin-top:2px;
-}
-
-.item-level {
-  font-size:11px;
-  font-weight:800;
-  color:#718d5d;
-  margin-top:3px;
-}
-
-.buy {
-  border:0;
-  border-radius:12px;
-  padding:10px 12px;
-  background:#f4d36e;
-  color:#624b16;
-  font-size:12px;
-  font-weight:900;
-  min-width:78px;
-  transition:.2s;
-}
-
-.buy:hover { background:#edc24b;transform:translateY(-2px); }
-.buy:disabled { background:#e8e9dc;color:#a3a692;cursor:not-allowed;transform:none; }
-
-.bottom {
-  margin-top:18px;
-  text-align:center;
-  font-size:12px;
-  color:#929984;
-}
-
-.message {
-  margin-top:18px;
-  padding:14px;
-  background:#fff7dd;
-  border:1px solid #f3e8bf;
-  border-radius:16px;
-  text-align:center;
-  font-weight:800;
-  font-size:13px;
-  color:#90702b;
-}
-
-.reset {
-  margin-top:18px;
-  border:0;
-  background:transparent;
-  color:#a0a18e;
-  font-size:12px;
-  text-decoration:underline;
-}
-
-@media(max-width:700px) {
-  header { padding-top:18px; }
-  .game-layout { grid-template-columns:1fr; }
-  .stats { gap:8px; }
-  .stat { padding:13px 5px; }
-  .panel { padding:16px; }
-  .field { min-height:300px; }
-  .flower-button { font-size:110px; }
-  .hero { margin-top:20px; }
-}
-
-@media(max-width:370px) {
-  .item-desc { font-size:10px; }
-  .buy { min-width:65px;padding:9px 7px; }
+@media(max-width:420px){
+  .stat .number{font-size:20px}
+  .panel{padding:16px}
+  .upgrade{gap:7px;padding:10px}
+  .upgrade button{font-size:11px;padding:8px}
 }
 </style>
 </head>
-
 <body>
-
 <header>
-  <div class="logo">🐝 Пчелиная<span> жизнь</span></div>
-  <div class="header-tag">🌼 Место добрых дел</div>
+  <div class="logo">🐝 Пчелиная <span>жизнь</span></div>
+  <div class="header-info">
+    <div class="pill">👑 Перерождений: <span id="rebirthCount">0</span></div>
+    <div class="pill">✨ Пыльца: <span id="pollen">0</span></div>
+  </div>
 </header>
 
-<main class="container">
-
-  <div class="hero">
-    <h1>Мир пчёл</h1>
-    <div class="subtitle">Маленькие крылышки — огромная польза для планеты 💛</div>
-  </div>
+<main>
+  <section class="world-banner">
+    <div>
+      <h1 id="worldTitle">🌼 Цветущий сад</h1>
+      <p id="worldDescription">Твоё маленькое пчелиное королевство начинается здесь</p>
+    </div>
+    <div class="world-icon" id="worldEmoji">🌻</div>
+  </section>
 
   <section class="stats">
-    <div class="stat">
-      <div class="stat-icon">🌸</div>
-      <div class="stat-value" id="nectar">0</div>
-      <div class="stat-label">Нектар</div>
+    <div class="stat"><div class="number" id="nectar">0</div><small>🍯 Нектар</small></div>
+    <div class="stat"><div class="number" id="honey">0</div><small>🫙 Мёд</small></div>
+    <div class="stat"><div class="number" id="income">0</div><small>⚡ Нектара в секунду</small></div>
+  </section>
+
+  <div class="game-grid">
+    <section class="panel click-zone">
+      <h2>Собирай нектар!</h2>
+      <div class="bee" id="bee">🐝</div>
+      <div class="click-hint">Нажимай на пчёлку, чтобы собирать нектар</div>
+      <p class="muted" id="clickPower">За нажатие: +1</p>
+    </section>
+
+    <section class="panel">
+      <h2>🛠️ Улучшения</h2>
+      <div class="upgrades" id="upgrades"></div>
+    </section>
+  </div>
+
+  <section class="section panel">
+    <h2>🌍 Другие миры</h2>
+    <div class="world-list" id="worlds"></div>
+  </section>
+
+  <section class="section prestige">
+    <div class="prestige-row">
+      <div>
+        <h2>👑 Перерождение пчелиной королевы</h2>
+        <p class="muted">Начни новую жизнь, чтобы получить королевскую пыльцу!</p>
+      </div>
+      <div class="big">✨</div>
     </div>
-    <div class="stat">
-      <div class="stat-icon">🍯</div>
-      <div class="stat-value" id="honey">0</div>
-      <div class="stat-label">Мёд</div>
-    </div>
-    <div class="stat">
-      <div class="stat-icon">🐝</div>
-      <div class="stat-value" id="bees">3</div>
-      <div class="stat-label">Пчёлки рядом</div>
+    <div class="progress"><div id="prestigeProgress"></div></div>
+    <p class="muted" id="prestigeText">До перерождения осталось 100 000 нектара</p>
+    <div class="prestige-row">
+      <div>
+        <strong>Награда: <span id="prestigeReward">1</span> ✨</strong>
+        <p class="muted">Каждая пыльца увеличивает доход на 12%</p>
+      </div>
+      <button class="btn" id="rebirthButton" disabled>Переродиться</button>
     </div>
   </section>
 
-  <div class="game-layout">
+  <section class="section panel">
+    <h2>📊 Твоя пчелиная статистика</h2>
+    <div class="stats">
+      <div class="stat"><div class="number" id="totalNectar">0</div><small>Всего нектара собрано</small></div>
+      <div class="stat"><div class="number" id="beeCount">3</div><small>🐝 Пчёл в улье</small></div>
+      <div class="stat"><div class="number" id="multiplier">x1.00</div><small>Множитель дохода</small></div>
+    </div>
+  </section>
 
-    <section class="panel">
-      <div class="field" id="field">
-        <div class="field-title">ТВОЯ МАЛЕНЬКАЯ ЛУЖАЙКА</div>
-        <div class="bee one">🐝</div>
-        <div class="bee two">🐝</div>
-        <div class="bee three">🐝</div>
-
-        <button class="flower-button" id="flower" aria-label="Собрать нектар">🌻</button>
-        <div class="click-hint">Нажимай на цветок, чтобы собирать нектар!</div>
-      </div>
-
-      <div class="care">
-        <div class="care-top">
-          <span>💚 Забота о пчёлах</span>
-          <span id="carePercent">0%</span>
-        </div>
-        <div class="progress">
-          <div class="progress-fill" id="careFill"></div>
-        </div>
-        <div class="care-note" id="careText">Начни с посадки цветов — пчёлки будут рады!</div>
-      </div>
-
-      <div class="message" id="message">
-        «Когда исчезнут пчёлы, человечеству останется жить всего несколько лет» — популярная цитата, но не достоверно установленный прогноз. А вот их роль в природе действительно огромна! 🌍
-      </div>
-
-      <div style="text-align:center">
-        <button class="reset" id="reset">Сбросить прогресс</button>
-      </div>
-    </section>
-
-    <section class="panel">
-      <h2 class="section-title">Помоги пчёлкам 🌷</h2>
-      <div class="section-subtitle">Покупай улучшения и создавай уютный мир для опылителей.</div>
-
-      <div class="shop-list" id="shop"></div>
-    </section>
-
-  </div>
-
-  <div class="bottom">
-    Сделано с любовью к маленьким трудягам 🐝<br>
-    Не тревожь пчёл, не разрушай их гнёзда и сажай растения-медоносы.
-  </div>
-
+  <section class="section" style="text-align:center">
+    <button class="btn secondary" id="saveButton">💾 Сохранить игру</button>
+    <button class="btn secondary" id="resetButton">🗑️ Сбросить прогресс</button>
+  </section>
 </main>
 
+<footer>Сделано с любовью к пчёлкам 🐝</footer>
+<div class="toast" id="toast"></div>
+
 <script>
-const upgrades = [
+const SAVE_KEY = "beeRespectClicker";
+
+const worldData = [
   {
-    id:"flowers",
-    icon:"🌼",
-    name:"Цветочная поляна",
-    desc:"Больше цветов — больше нектара",
-    base:15,
-    power:1,
-    care:5
+    id:"garden", name:"Цветущий сад", emoji:"🌻",
+    description:"Начало твоего пчелиного приключения",
+    requirement:0, multiplier:1, className:""
   },
   {
-    id:"lavender",
-    icon:"💜",
-    name:"Лавандовый сад",
-    desc:"Ароматный рай для опылителей",
-    base:60,
-    power:4,
-    care:10
+    id:"lavender", name:"Лавандовая долина", emoji:"💜",
+    description:"Долина, наполненная ароматом лаванды",
+    requirement:1, multiplier:1.5, className:"world-lavender"
   },
   {
-    id:"sunflowers",
-    icon:"🌻",
-    name:"Поле подсолнухов",
-    desc:"Целое море вкусного нектара",
-    base:180,
-    power:12,
-    care:15
+    id:"sky", name:"Небесное королевство", emoji:"☁️",
+    description:"Парящие острова и облачные цветы",
+    requirement:3, multiplier:2.5, className:"world-sky"
   },
   {
-    id:"water",
-    icon:"💧",
-    name:"Поилка для пчёл",
-    desc:"Безопасное место, чтобы попить",
-    base:350,
-    power:20,
-    care:25
-  },
-  {
-    id:"meadow",
-    icon:"🌳",
-    name:"Дикий луг",
-    desc:"Природный дом для множества видов",
-    base:900,
-    power:55,
-    care:35
-  },
-  {
-    id:"sanctuary",
-    icon:"🏡",
-    name:"Заповедный уголок",
-    desc:"Защищённое место для опылителей",
-    base:2500,
-    power:150,
-    care:50
+    id:"crystal", name:"Кристальный мир", emoji:"💎",
+    description:"Легендарный мир волшебных цветов",
+    requirement:7, multiplier:5, className:"world-crystal"
   }
 ];
 
-let state = {
-  nectar:0,
-  honey:0,
-  clicks:0,
-  totalNectar:0,
-  upgrades:{},
-  bees:3
-};
+const upgradeData = [
+  {id:"flowers",name:"Цветы",emoji:"🌼",base:15,power:1,desc:"+1 к клику"},
+  {id:"lavender",name:"Лаванда",emoji:"💜",base:60,power:1,desc:"+1 нектар/сек"},
+  {id:"sunflowers",name:"Подсолнухи",emoji:"🌻",base:250,power:4,desc:"+4 нектара/сек"},
+  {id:"water",name:"Родник",emoji:"💧",base:900,power:12,desc:"+12 нектара/сек"},
+  {id:"meadow",name:"Большой луг",emoji:"🌳",base:3500,power:45,desc:"+45 нектара/сек"},
+  {id:"sanctuary",name:"Святилище пчёл",emoji:"🏰",base:15000,power:180,desc:"+180 нектара/сек"}
+];
 
-function loadGame() {
-  try {
-    const saved = localStorage.getItem("beeRespectClicker");
-    if(saved) {
-      const parsed = JSON.parse(saved);
-      state = {...state,...parsed};
-    }
-  } catch(e) {
-    console.warn("Не удалось загрузить сохранение",e);
+function defaultState(){
+  const upgrades={};
+  upgradeData.forEach(u=>upgrades[u.id]=0);
+  return {
+    nectar:0,totalNectar:0,pollen:0,rebirths:0,
+    upgrades,world:"garden",unlocked:["garden"]
+  };
+}
+
+let state=defaultState();
+
+try{
+  const old=JSON.parse(localStorage.getItem(SAVE_KEY));
+  if(old && typeof old==="object"){
+    state={...state,...old};
+    state.upgrades={...defaultState().upgrades,...(old.upgrades||{})};
+    state.unlocked=Array.isArray(old.unlocked)?old.unlocked:["garden"];
+    if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
+    if(!worldData.some(w=>w.id===state.world))state.world="garden";
   }
+}catch(e){console.log("Сохранение не найдено");}
+
+function format(n){
+  if(n<1000)return Math.floor(n).toLocaleString("ru-RU");
+  const units=["тыс.","млн","млрд","трлн","квдр."];
+  let i=-1;
+  while(n>=1000&&i<units.length-1){n/=1000;i++}
+  return n.toFixed(n>=100?0:n>=10?1:2)+" "+units[i];
 }
-
-function saveGame() {
-  localStorage.setItem("beeRespectClicker",JSON.stringify(state));
+function currentWorld(){
+  return worldData.find(w=>w.id===state.world)||worldData[0];
 }
-
-function getLevel(id) {
-  return state.upgrades[id] || 0;
+function multiplier(){
+  return (1+state.pollen*.12)*currentWorld().multiplier;
 }
-
-function getCost(item) {
-  return Math.floor(item.base * Math.pow(1.55,getLevel(item.id)));
+function clickPower(){
+  return (1+state.upgrades.flowers)*multiplier();
 }
-
-function getIncome() {
-  return upgrades.reduce((sum,item) => {
-    return sum + getLevel(item.id) * item.power;
-  },0);
+function income(){
+  let value=0;
+  upgradeData.filter(u=>u.id!=="flowers").forEach(u=>{
+    value+=state.upgrades[u.id]*u.power;
+  });
+  return value*multiplier();
 }
-
-function getCare() {
-  const total = upgrades.reduce((sum,item) => {
-    return sum + getLevel(item.id) * item.care;
-  },0);
-
-  return Math.min(100,total);
+function cost(u){
+  return Math.floor(u.base*Math.pow(1.55,state.upgrades[u.id]));
 }
-
-function format(value) {
-  if(value < 1000) return Math.floor(value).toLocaleString("ru-RU");
-  if(value < 1000000) return (value/1000).toFixed(1).replace(".",",")+" тыс.";
-  return (value/1000000).toFixed(2).replace(".",",")+" млн.";
+function showToast(message){
+  const el=document.getElementById("toast");
+  el.textContent=message;
+  el.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer=setTimeout(()=>el.classList.remove("show"),2200);
 }
+function save(){
+  localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+}
+function gain(amount){
+  state.nectar+=amount;
+  state.totalNectar+=amount;
+}
+function clickBee(e){
+  const amount=clickPower();
+  gain(amount);
+  const rect=e.currentTarget.getBoundingClientRect();
+  const t=document.createElement("div");
+  t.className="float-text";
+  t.textContent="+"+format(amount)+" 🍯";
+  t.style.left=(rect.left+rect.width/2)+"px";
+  t.style.top=(rect.top+rect.height/2)+"px";
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),850);
+  render();
+}
+document.getElementById("bee").addEventListener("click",clickBee);
 
-function renderShop() {
-  const shop = document.getElementById("shop");
-  shop.innerHTML = "";
-
-  upgrades.forEach(item => {
-    const level = getLevel(item.id);
-    const cost = getCost(item);
-
-    const card = document.createElement("div");
-    card.className = "shop-item";
-
-    card.innerHTML = `
-      <div class="item-icon">${item.icon}</div>
-      <div class="item-info">
-        <div class="item-name">${item.name}</div>
-        <div class="item-desc">${item.desc}</div>
-        <div class="item-level">Уровень ${level} · +${item.power}/сек.</div>
+function buyUpgrade(id){
+  const u=upgradeData.find(x=>x.id===id);
+  const price=cost(u);
+  if(state.nectar<price)return;
+  state.nectar-=price;
+  state.upgrades[id]++;
+  showToast("Улучшение куплено! "+u.emoji);
+  render();
+}
+function renderUpgrades(){
+  const root=document.getElementById("upgrades");
+  root.innerHTML="";
+  upgradeData.forEach(u=>{
+    const price=cost(u);
+    const level=state.upgrades[u.id];
+    const el=document.createElement("div");
+    el.className="upgrade";
+    el.innerHTML=`
+      <div class="upgrade-icon">${u.emoji}</div>
+      <div class="upgrade-info">
+        <strong>${u.name} · ${level}</strong>
+        <small>${u.desc}</small>
       </div>
-      <button class="buy" ${state.nectar < cost ? "disabled" : ""}>
-        🌸 ${format(cost)}
-      </button>
-    `;
-
-    card.querySelector("button").addEventListener("click",() => buyUpgrade(item.id));
-    shop.appendChild(card);
+      <button class="btn" ${state.nectar<price?"disabled":""}>
+        ${format(price)} 🍯
+      </button>`;
+    el.querySelector("button").addEventListener("click",()=>buyUpgrade(u.id));
+    root.appendChild(el);
   });
 }
-
-function render() {
-  document.getElementById("nectar").textContent = format(state.nectar);
-  document.getElementById("honey").textContent = format(state.honey);
-  document.getElementById("bees").textContent = format(state.bees);
-
-  const care = getCare();
-  document.getElementById("carePercent").textContent = care+"%";
-  document.getElementById("careFill").style.width = care+"%";
-
-  let careText = "Начни с посадки цветов — пчёлки будут рады!";
-  if(care >= 25) careText = "Пчёлкам становится уютнее! 🌱";
-  if(care >= 50) careText = "Уже настоящий пчелиный рай! 💚";
-  if(care >= 75) careText = "Ты замечательный хранитель природы! 🌳";
-  if(care >= 100) careText = "Идеальный уголок для опылителей! 🐝";
-
-  document.getElementById("careText").textContent = careText;
-  renderShop();
+function renderWorlds(){
+  const root=document.getElementById("worlds");
+  root.innerHTML="";
+  worldData.forEach(w=>{
+    const unlocked=state.unlocked.includes(w.id);
+    const active=state.world===w.id;
+    const el=document.createElement("div");
+    el.className="world-card"+(active?" active":"")+(unlocked?"":" locked");
+    el.innerHTML=`
+      <div class="emoji">${w.emoji}</div>
+      <strong>${w.name}</strong>
+      <small>x${w.multiplier} дохода</small>
+      <br>
+      <button class="btn ${unlocked?"":"secondary"}" ${unlocked?"":"disabled"}>
+        ${active?"Выбран":unlocked?"Перейти":"🔒 "+w.requirement+" перерожд."}
+      </button>`;
+    if(unlocked&&!active){
+      el.querySelector("button").addEventListener("click",()=>{
+        state.world=w.id;
+        applyWorld();
+        render();
+        showToast("Добро пожаловать: "+w.name+"!");
+      });
+    }
+    root.appendChild(el);
+  });
 }
-
-function addNectar(amount) {
-  state.nectar += amount;
-  state.totalNectar += amount;
-  state.honey = Math.floor(state.totalNectar / 100);
+function applyWorld(){
+  document.body.className=currentWorld().className;
 }
+function renderPrestige(){
+  const required=100000;
+  const ready=state.nectar>=required;
+  const reward=Math.max(1,Math.floor(Math.sqrt(state.totalNectar/10000)));
+  document.getElementById("prestigeProgress").style.width=
+    Math.min(100,state.nectar/required*100)+"%";
+  document.getElementById("prestigeText").textContent=ready
+    ?"Ты готов к перерождению! Награда ждёт тебя."
+    :"До перерождения осталось "+format(required-state.nectar)+" нектара";
+  document.getElementById("prestigeReward").textContent=reward;
+  document.getElementById("rebirthButton").disabled=!ready;
+}
+function render(){
+  const w=currentWorld();
+  document.getElementById("nectar").textContent=format(state.nectar);
+  document.getElementById("honey").textContent=format(Math.floor(state.totalNectar/100));
+  document.getElementById("income").textContent=format(income());
+  document.getElementById("pollen").textContent=format(state.pollen);
+  document.getElementById("rebirthCount").textContent=state.rebirths;
+  document.getElementById("totalNectar").textContent=format(state.totalNectar);
+  document.getElementById("beeCount").textContent=
+    3+Object.values(state.upgrades).reduce((a,b)=>a+b,0)*2;
+  document.getElementById("multiplier").textContent="x"+multiplier().toFixed(2);
+  document.getElementById("clickPower").textContent="За нажатие: +"+format(clickPower());
+  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
+  document.getElementById("worldDescription").textContent=w.description;
+  document.getElementById("worldEmoji").textContent=w.emoji;
+  renderUpgrades();
+  renderWorlds();
+  renderPrestige();
+}
+document.getElementById("rebirthButton").addEventListener("click",()=>{
+  if(state.nectar<100000)return;
+  const reward=Math.max(1,Math.floor(Math.sqrt(state.totalNectar/10000)));
+  if(!confirm("Переродиться и получить "+reward+" королевской пыльцы? Текущие улучшения и нектар будут сброшены."))return;
 
-function clickFlower(event) {
-  const flower = document.getElementById("flower");
-  const field = document.getElementById("field");
+  state.pollen+=reward;
+  state.rebirths++;
+  state.nectar=0;
+  upgradeData.forEach(u=>state.upgrades[u.id]=0);
 
-  state.clicks++;
-  const gain = 1 + Math.floor(getCare()/25);
-  addNectar(gain);
+  worldData.forEach(w=>{
+    if(state.rebirths>=w.requirement&&!state.unlocked.includes(w.id)){
+      state.unlocked.push(w.id);
+    }
+  });
 
-  const rect = field.getBoundingClientRect();
-  const x = event.clientX ? event.clientX - rect.left : rect.width/2;
-  const y = event.clientY ? event.clientY - rect.top : rect.height/2;
-
-  const effect = document.createElement("div");
-  effect.className = "click-effect";
-  effect.textContent = "+"+gain+" 🌸";
-  effect.style.left = x+"px";
-  effect.style.top = y+"px";
-  field.appendChild(effect);
-
-  setTimeout(() => effect.remove(),800);
-
+  state.world="garden";
+  applyWorld();
+  save();
   render();
-  saveGame();
-}
-
-function buyUpgrade(id) {
-  const item = upgrades.find(x => x.id === id);
-  if(!item) return;
-
-  const cost = getCost(item);
-  if(state.nectar < cost) return;
-
-  state.nectar -= cost;
-  state.upgrades[id] = getLevel(id)+1;
-
-  // Чем больше заботы, тем больше пчёлок прилетает на лужайку.
-  state.bees = 3 + upgrades.reduce((sum,x) => sum + getLevel(x.id)*2,0);
-
-  render();
-  saveGame();
-}
-
-document.getElementById("flower").addEventListener("click",clickFlower);
-
-document.getElementById("reset").addEventListener("click",() => {
-  if(confirm("Точно начать игру заново? Все пчёлки и улучшения останутся только в воспоминаниях 🥺")) {
-    localStorage.removeItem("beeRespectClicker");
-    state = {
-      nectar:0,
-      honey:0,
-      clicks:0,
-      totalNectar:0,
-      upgrades:{},
-      bees:3
-    };
-    render();
-    saveGame();
-  }
+  showToast("Новое перерождение! ✨");
+});
+document.getElementById("saveButton").addEventListener("click",()=>{
+  save();showToast("Игра сохранена! 💾");
+});
+document.getElementById("resetButton").addEventListener("click",()=>{
+  if(!confirm("Точно удалить весь прогресс? Это действие нельзя отменить."))return;
+  state=defaultState();
+  save();applyWorld();render();
+  showToast("Прогресс сброшен");
 });
 
-setInterval(() => {
-  const income = getIncome();
-
-  if(income > 0) {
-    addNectar(income);
+let last=Date.now();
+setInterval(()=>{
+  const now=Date.now();
+  const seconds=Math.min((now-last)/1000,5);
+  last=now;
+  const amount=income()*seconds;
+  if(amount>0){
+    gain(amount);
     render();
-    saveGame();
   }
+  save();
 },1000);
 
-loadGame();
+applyWorld();
 render();
 </script>
-
 </body>
 </html>

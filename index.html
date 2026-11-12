@@ -90,6 +90,17 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 .extra-card p{color:#947e58;font-weight:700}
 .hive-level{font-size:30px;font-weight:900;color:#c18a16}
 @media(max-width:650px){.extra-grid{grid-template-columns:1fr}}
+
+.quest-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.quest-item{background:#fff;border:1px solid #f0e3c8;border-radius:17px;padding:15px}
+.quest-head{display:flex;align-items:center;gap:10px}
+.quest-emoji{font-size:30px}
+.quest-item strong{display:block}
+.quest-item small{color:#947e58;font-weight:800}
+.quest-progress{height:10px;background:#eee5d5;border-radius:20px;overflow:hidden;margin:10px 0}
+.quest-progress div{height:100%;background:linear-gradient(90deg,#f5cf57,#ed9c28);width:0}
+.quest-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+@media(max-width:650px){.quest-list{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -138,6 +149,12 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
   <section class="section panel">
     <h2>🏆 Достижения</h2>
     <div class="achievements" id="achievements"></div>
+  </section>
+
+  <section class="section panel">
+    <h2>📜 Задания пчелиной королевы</h2>
+    <p class="muted">Выполняй задания, забирай награды и развивай своё королевство. Прогресс сохраняется!</p>
+    <div class="quest-list" id="questList"></div>
   </section>
 
   <section class="section panel">
@@ -224,7 +241,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0};
+ return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[]};
 }
 let state=defaultState();
 try{
@@ -237,6 +254,9 @@ try{
   state.hiveLevel=Math.max(1,Number(old.hiveLevel)||1);
   state.expeditionFinish=Math.max(0,Number(old.expeditionFinish)||0);
   state.expeditionReward=Math.max(0,Number(old.expeditionReward)||0);
+  state.questClicks=Math.max(0,Number(old.questClicks)||0);
+  state.expeditionsCompleted=Math.max(0,Number(old.expeditionsCompleted)||0);
+  state.claimedQuests=Array.isArray(old.claimedQuests)?old.claimedQuests:[];
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -263,6 +283,7 @@ function showToast(message){
 function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(state))}
 function gain(amount){state.nectar+=amount;state.totalNectar+=amount}
 function clickBee(e){
+ state.questClicks++;
  const amount=clickPower();gain(amount);
  const rect=e.currentTarget.getBoundingClientRect();
  const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(amount)+" 🍯";
@@ -346,7 +367,7 @@ document.getElementById("expeditionButton").addEventListener("click",()=>{
  if(state.expeditionFinish>now)return;
  if(state.expeditionFinish>0){
   const reward=state.expeditionReward;gain(reward);
-  state.expeditionFinish=0;state.expeditionReward=0;
+  state.expeditionFinish=0;state.expeditionReward=0;state.expeditionsCompleted++;
   showToast("Экспедиция вернулась! +"+format(reward)+" нектара 🌷");
  }else{
   state.expeditionReward=expeditionRewardValue();
@@ -362,6 +383,34 @@ document.getElementById("hiveUpgradeButton").addEventListener("click",()=>{
  save();render();showToast("Улей улучшен! Доход вырос на 5% 🏡");
 });
 setInterval(()=>{if(state.expeditionFinish>0)renderExpedition()},1000);
+
+const questData=[
+ {id:"clicks",emoji:"🐝",name:"Крылья не устают",desc:"Нажми на пчёлку 50 раз",goal:50,reward:1200,progress:s=>s.questClicks},
+ {id:"collector",emoji:"🌼",name:"Цветочный сборщик",desc:"Собери 5 000 нектара за всё время",goal:5000,reward:2500,progress:s=>s.totalNectar},
+ {id:"upgrades",emoji:"🛠️",name:"Мастер улучшений",desc:"Купи 5 улучшений",goal:5,reward:3000,progress:s=>Object.values(s.upgrades).reduce((a,b)=>a+b,0)},
+ {id:"traveler",emoji:"🧭",name:"Путешественник",desc:"Заверши 1 экспедицию",goal:1,reward:4000,progress:s=>s.expeditionsCompleted},
+ {id:"rebirth",emoji:"👑",name:"Королевское величие",desc:"Совершить 1 перерождение",goal:1,reward:10000,progress:s=>s.rebirths},
+ {id:"hive",emoji:"🏡",name:"Крепкий улей",desc:"Улучши улей до 3 уровня",goal:3,reward:6000,progress:s=>s.hiveLevel}
+];
+function renderQuests(){
+ const root=document.getElementById("questList");root.innerHTML="";
+ questData.forEach(q=>{
+  const current=Math.min(q.goal,q.progress(state));
+  const completed=current>=q.goal;
+  const claimed=state.claimedQuests.includes(q.id);
+  const el=document.createElement("div");el.className="quest-item";
+  el.innerHTML=`<div class="quest-head"><div class="quest-emoji">${q.emoji}</div><div><strong>${q.name}</strong><small>${q.desc}</small></div></div>
+   <div class="quest-progress"><div style="width:${current/q.goal*100}%"></div></div>
+   <div class="quest-bottom"><small>${format(current)} / ${format(q.goal)} · Награда: ${format(q.reward)} 🍯</small>
+   <button class="btn" ${!completed||claimed?"disabled":""}>${claimed?"Получено ✓":completed?"Забрать":"В процессе"}</button></div>`;
+  el.querySelector("button").addEventListener("click",()=>{
+   if(!completed||claimed)return;
+   state.claimedQuests.push(q.id);gain(q.reward);save();render();
+   showToast("Задание выполнено! +"+format(q.reward)+" нектара 🎁");
+  });
+  root.appendChild(el);
+ });
+}
 function render(){
  const w=currentWorld();
  document.getElementById("nectar").textContent=format(state.nectar);
@@ -376,7 +425,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

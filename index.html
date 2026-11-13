@@ -176,6 +176,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 .building-row small{display:block;color:#947e58;font-weight:700}
 @media(max-width:650px){.kingdom-grid{grid-template-columns:1fr}.bee-collection{grid-template-columns:repeat(3,minmax(0,1fr))}}
 
+.shop-wallet{padding:12px 15px;border-radius:14px;background:#fff5d7;font-weight:900;margin:10px 0 18px}.shop-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:10px 0 20px}.shop-item{background:#fff;border:1px solid #f0e3c8;border-radius:17px;padding:14px;color:#493719;min-width:0}.shop-item .shop-emoji{font-size:38px}.shop-item strong{display:block;margin:5px 0}.shop-item p{font-size:13px;color:#947e58;font-weight:700;min-height:38px}.shop-item button{width:100%;padding:9px 8px;font-size:13px}.shop-item.equipped{border:2px solid #e6b43f;background:#fff9e5}@media(max-width:650px){.shop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -262,6 +263,14 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
       <div class="stat"><div class="number" id="beeCount">3</div><small>🐝 Пчёл в улье</small></div>
       <div class="stat"><div class="number" id="multiplier">x1.00</div><small>Множитель дохода</small></div>
     </div>
+  </section>
+
+  <section class="section panel">
+    <h2>🛍️ Магазин пчёлки</h2>
+    <p class="muted">Покупай крылья для усиления дохода и скины для своей пчёлки. Купленные вещи остаются навсегда, а экипировать можно по одной вещи каждого типа.</p>
+    <div class="shop-wallet" id="shopWallet"></div>
+    <h3>🪽 Усиленные крылья</h3><div class="shop-grid" id="shopWings"></div>
+    <h3>🎨 Скины пчёлки</h3><div class="shop-grid" id="shopSkins"></div>
   </section>
 
   <section class="section panel">
@@ -362,6 +371,7 @@ const SAVE_KEY="beeRespectClicker";
   {id:'activities',label:'Активности',icon:'🎯'},
   {id:'worlds',label:'Миры',icon:'🌍'},
   {id:'market',label:'Биржа',icon:'📈'},
+  {id:'shop',label:'Магазин',icon:'🛍️'},
   {id:'progress',label:'Прогресс',icon:'🏆'}
  ];
  function heading(el,txt){const h=el.querySelector('h2');return !!h&&h.textContent.includes(txt)}
@@ -373,6 +383,7 @@ const SAVE_KEY="beeRespectClicker";
   if(el.classList.contains('game-grid')||el.classList.contains('daily-panel'))tab='play';
   else if(heading(el,'Другие миры'))tab='worlds';
   else if(heading(el,'Задания пчелиной королевы')||heading(el,'Золотая пчёлка')||heading(el,'Экспедиции')||heading(el,'Королевство пчёл'))tab='activities';
+  else if(heading(el,'Магазин пчёлки'))tab='shop';
   else if(heading(el,'Пчелиная биржа'))tab='market';
   else if(heading(el,'Достижения')||el.classList.contains('prestige')||heading(el,'Твоя пчелиная статистика')||el.style.textAlign==='center')tab='progress';
   pages[tab].appendChild(el);
@@ -407,6 +418,17 @@ const SAVE_KEY="beeRespectClicker";
  try{const saved=localStorage.getItem('beeClickerActiveTab');if(pages[saved])initial=saved}catch(e){}
  switchTab(initial);
 })();
+const shopWings=[
+ {id:"leaf",name:"Листовые крылья",emoji:"🍃",bonus:.10,cost:12,currency:"honey",desc:"+10% ко всему доходу"},
+ {id:"swift",name:"Крылья стрекозы",emoji:"🪽",bonus:.25,cost:45,currency:"honey",desc:"+25% ко всему доходу"},
+ {id:"royal",name:"Королевские крылья",emoji:"✨",bonus:.50,cost:3,currency:"crystals",desc:"+50% ко всему доходу"}
+];
+const shopSkins=[
+ {id:"bee",name:"Классическая пчёлка",emoji:"🐝",cost:0,currency:"honey",desc:"Твой привычный образ"},
+ {id:"ladybug",name:"Божья коровка",emoji:"🐞",cost:18,currency:"honey",desc:"Милый красный образ"},
+ {id:"butterfly",name:"Бабочка",emoji:"🦋",cost:35,currency:"honey",desc:"Лёгкий и яркий стиль"},
+ {id:"alien",name:"Космическая пчела",emoji:"👾",cost:2,currency:"crystals",desc:"Редкий инопланетный скин"}
+];
 const worldData=[
 {id:"garden",name:"Цветущий сад",emoji:"🌻",description:"Начало твоего пчелиного приключения",requirement:0,multiplier:1,className:""},
 {id:"lavender",name:"Лавандовая долина",emoji:"💜",description:"Долина, наполненная ароматом лаванды",requirement:1,multiplier:1.5,className:"world-lavender"},
@@ -433,7 +455,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,ownedShopItems:[],equippedWing:"",equippedSkin:"bee",meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -464,6 +486,9 @@ try{
   state.eventTokens=Math.max(0,Number(old.eventTokens)||0);
   state.mutations=Math.max(0,Number(old.mutations)||0);
   state.meadowHarvest=Math.max(0,Number(old.meadowHarvest)||0);
+  state.ownedShopItems=Array.isArray(old.ownedShopItems)?old.ownedShopItems:[];
+  state.equippedWing=typeof old.equippedWing==="string"?old.equippedWing:"";
+  state.equippedSkin=typeof old.equippedSkin==="string"?old.equippedSkin:"bee";
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -476,7 +501,8 @@ function format(n){
 }
 function currentWorld(){return worldData.find(w=>w.id===state.world)||worldData[0]}
 function beeBonus(){return state.bees.reduce((sum,id)=>sum+(beeTypes.find(b=>b.id===id)?.bonus||0),0)}
-function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05+(state.queenLevel-1)*.08+beeBonus())*currentWorld().multiplier}
+function wingBonus(){const wing=shopWings.find(w=>w.id===state.equippedWing);return wing?wing.bonus:0}
+function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05+(state.queenLevel-1)*.08+beeBonus()+wingBonus())*currentWorld().multiplier}
 function clickPower(){return (1+state.upgrades.flowers)*multiplier()}
 function income(){
  let value=0;
@@ -851,6 +877,38 @@ document.getElementById("seasonReward").addEventListener("click",()=>{
  state.bees.push(chosen.id);save();render();showToast("Сезонный подарок! Новая пчела: "+chosen.emoji+" "+chosen.name);
 });
 
+function renderShop(){
+ const wallet=document.getElementById("shopWallet");
+ wallet.textContent="🍯 Мёд: "+format(state.honey)+"   ·   💎 Кристаллы: "+format(state.crystals)+"   ·   Бонус крыльев: +"+Math.round(wingBonus()*100)+"%";
+ const wings=document.getElementById("shopWings"),skins=document.getElementById("shopSkins");
+ wings.innerHTML="";skins.innerHTML="";
+ shopWings.forEach(item=>{
+  const owned=state.ownedShopItems.includes("wing:"+item.id),equipped=state.equippedWing===item.id;
+  const currency=item.currency==="honey"?"honey":"crystals",symbol=item.currency==="honey"?"🍯":"💎";
+  const card=document.createElement("div");card.className="shop-item"+(equipped?" equipped":"");
+  card.innerHTML='<div class="shop-emoji">'+item.emoji+'</div><strong>'+item.name+'</strong><p>'+item.desc+'</p><button class="btn">'+(equipped?"Надето ✓":owned?"Экипировать":"Купить · "+item.cost+" "+symbol)+'</button>';
+  card.querySelector("button").addEventListener("click",()=>{
+   if(owned){state.equippedWing=item.id;save();render();showToast("Крылья экипированы! Бонус +"+Math.round(item.bonus*100)+"% 🪽");return;}
+   if(state[currency]<item.cost){showToast("Не хватает "+(currency==="honey"?"мёда 🍯":"кристаллов 💎"));return;}
+   state[currency]-=item.cost;state.ownedShopItems.push("wing:"+item.id);state.equippedWing=item.id;save();render();showToast("Новые крылья куплены! 🪽");
+  });
+  wings.appendChild(card);
+ });
+ shopSkins.forEach(item=>{
+  const owned=item.cost===0||state.ownedShopItems.includes("skin:"+item.id),equipped=state.equippedSkin===item.id;
+  const symbol=item.currency==="honey"?"🍯":"💎",currency=item.currency==="honey"?"honey":"crystals";
+  const card=document.createElement("div");card.className="shop-item"+(equipped?" equipped":"");
+  card.innerHTML='<div class="shop-emoji">'+item.emoji+'</div><strong>'+item.name+'</strong><p>'+item.desc+'</p><button class="btn">'+(equipped?"Надето ✓":owned?"Выбрать":"Купить · "+item.cost+" "+symbol)+'</button>';
+  card.querySelector("button").addEventListener("click",()=>{
+   if(owned){state.equippedSkin=item.id;save();render();showToast("Новый образ выбран! 🎨");return;}
+   if(state[currency]<item.cost){showToast("Не хватает "+(currency==="honey"?"мёда 🍯":"кристаллов 💎"));return;}
+   state[currency]-=item.cost;state.ownedShopItems.push("skin:"+item.id);state.equippedSkin=item.id;save();render();showToast("Скин куплен! 🎨");
+  });
+  skins.appendChild(card);
+ });
+ const skin=shopSkins.find(x=>x.id===state.equippedSkin)||shopSkins[0];
+ document.getElementById("bee").textContent=skin.emoji;
+}
 function render(){
  const w=currentWorld();
  document.getElementById("nectar").textContent=format(state.nectar);
@@ -865,7 +923,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();updateMeadowHUD();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();renderShop();updateMeadowHUD();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

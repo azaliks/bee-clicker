@@ -474,7 +474,19 @@ function showToast(message){
  const el=document.getElementById("toast");el.textContent=message;el.classList.add("show");
  clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove("show"),2200);
 }
-function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(state))}
+function save(){
+ try{
+  localStorage.setItem(SAVE_KEY,JSON.stringify(state));
+  return true;
+ }catch(e){
+  console.warn("Не удалось сохранить прогресс",e);
+  return false;
+ }
+}
+// Автосохранение: периодически и при уходе со страницы/сворачивании игры.
+setInterval(save,5000);
+window.addEventListener("pagehide",save);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save()});
 function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
 function clickBee(e){
  state.questClicks++;

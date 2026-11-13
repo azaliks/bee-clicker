@@ -417,7 +417,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -440,6 +440,7 @@ try{
   state.bees=Array.isArray(old.bees)?old.bees:[];
   state.buildings={apiary:0,greenhouse:0,workshop:0,...(old.buildings||{})};
   state.bossWins=Math.max(0,Number(old.bossWins)||0);
+  state.bossHp=Math.max(1,Math.min(100,Number(old.bossHp)||100));
   state.crystals=Math.max(0,Number(old.crystals)||0);
   state.eventTokens=Math.max(0,Number(old.eventTokens)||0);
   state.mutations=Math.max(0,Number(old.mutations)||0);
@@ -696,12 +697,12 @@ function renderKingdom(){
   row.querySelector("button").addEventListener("click",()=>{if(state.nectar<price)return;state.nectar-=price;state.buildings[b.id]=(state.buildings[b.id]||0)+1;save();render();showToast("Новое здание построено! "+b.emoji)});
   city.appendChild(row);
  });
- const bossIndex=state.bossWins%bossNames.length,health=Math.max(0,100-(state.bossWins%5)*0);
+ const bossIndex=state.bossWins%bossNames.length,health=state.bossHp;
  document.getElementById("bossName").textContent=["🐝","👑","🕷️","🦂","🐉"][bossIndex]+" "+bossNames[bossIndex];
  document.getElementById("bossHealth").style.width=health+"%";
- document.getElementById("bossInfo").textContent="Побед: "+state.bossWins+" · Награда: "+format(1500+state.bossWins*500)+" нектара и 1 💎";
+ document.getElementById("bossInfo").textContent="Здоровье: "+Math.ceil(state.bossHp)+"% · Побед: "+state.bossWins+" · За победу: "+format(1500+state.bossWins*500)+" нектара и 1 💎";
  const attack=document.getElementById("bossAttack"),bossCost=Math.floor(1000*Math.pow(1.35,state.bossWins));
- attack.textContent="Вызвать на бой · "+format(bossCost)+" 🍯";attack.disabled=state.nectar<bossCost;
+ attack.textContent="Атаковать · "+format(bossCost)+" 🍯";attack.disabled=state.nectar<bossCost;
  document.getElementById("labInfo").textContent="Кристаллы: "+state.crystals+" 💎 · Проведено мутаций: "+state.mutations;
  document.getElementById("mutateBee").disabled=!state.bees.length||state.crystals<1||state.nectar<2000;
  const seasons=["🌸 Весенний фестиваль","☀️ Летнее цветение","🍂 Осенний сбор","❄️ Зимняя сказка"];
@@ -723,8 +724,9 @@ document.getElementById("queenUpgrade").addEventListener("click",()=>{
 });
 document.getElementById("bossAttack").addEventListener("click",()=>{
  const price=Math.floor(1000*Math.pow(1.35,state.bossWins));if(state.nectar<price)return;
- state.nectar-=price;state.bossWins++;const reward=1500+(state.bossWins-1)*500;
- gain(reward);state.crystals++;save();render();showToast("Босс побеждён! +"+format(reward)+" нектара и 1 💎");
+ state.nectar-=price;const damage=Math.min(state.bossHp,20+state.queenLevel*2+state.bees.length*2);state.bossHp-=damage;
+ if(state.bossHp<=0){state.bossWins++;state.bossHp=100;const reward=1500+(state.bossWins-1)*500;gain(reward);state.crystals++;save();render();showToast("Босс повержен! +"+format(reward)+" нектара и 1 💎");}
+ else{save();render();showToast("Попадание! Урон: "+damage+"% ⚔️");}
 });
 document.getElementById("mutateBee").addEventListener("click",()=>{
  if(!state.bees.length||state.crystals<1||state.nectar<2000)return;

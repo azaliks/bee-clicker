@@ -147,6 +147,26 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
  .side-menu{left:auto;right:62px}
  .side-menu.open{transform:translateX(0) translateY(-50%)}
 }
+
+/* Новые системы королевства */
+.kingdom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:14px}
+.kingdom-card{background:#fff;border:1px solid #f0e3c8;border-radius:18px;padding:15px;color:#493719;min-width:0}
+.kingdom-card h3{margin:0 0 8px;font-size:17px}
+.kingdom-card p{margin:5px 0 12px;color:#947e58;font-weight:700;font-size:13px}
+.kingdom-card .btn{margin:4px 4px 0 0}
+.kingdom-metric{font-size:25px;font-weight:900;color:#bd8617}
+.bee-collection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.bee-unit{background:#fff8e8;border:1px solid #f0dfb8;border-radius:13px;padding:9px;text-align:center;min-width:0}
+.bee-unit .emoji{font-size:27px}.bee-unit strong{display:block;font-size:12px}.bee-unit small{color:#947e58;font-weight:800;font-size:11px}
+.rarity-common{border-color:#d9d9d9}.rarity-uncommon{border-color:#76bd87}.rarity-rare{border-color:#62a8e8}.rarity-epic{border-color:#b28be8}.rarity-legendary{border-color:#e8b844;background:#fff8d9}.rarity-mythic{border-color:#ec8cba;background:#fff0f7}
+.kingdom-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.kingdom-actions .btn{flex:1;min-width:115px}
+.season-banner{border-radius:14px;padding:12px;background:linear-gradient(120deg,#e5f8df,#fff1bd);font-weight:900;margin:9px 0}
+.boss-health{height:13px;border-radius:20px;background:#eee0d5;overflow:hidden;margin:9px 0}.boss-health div{height:100%;background:linear-gradient(90deg,#ed7964,#e7ad35);transition:width .2s}
+.building-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #f1e8d8}.building-row:last-child{border:0}
+.building-row small{display:block;color:#947e58;font-weight:700}
+@media(max-width:650px){.kingdom-grid{grid-template-columns:1fr}.bee-collection{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 </style>
 </head>
 <body>
@@ -262,6 +282,49 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
     </div>
   </section>
 
+
+  <section class="section panel">
+    <h2>👑 Королевство пчёл</h2>
+    <p class="muted">Развивай королеву, собирай редких пчёл, строй город, сражайся с боссами и участвуй в сезонных событиях!</p>
+    <div class="kingdom-grid">
+      <div class="kingdom-card">
+        <h3>👑 Королева улья</h3>
+        <div class="kingdom-metric" id="queenLevel">Уровень 1</div>
+        <p id="queenInfo">Королева усиливает всё производство.</p>
+        <button class="btn" id="queenUpgrade">Улучшить королеву</button>
+      </div>
+      <div class="kingdom-card">
+        <h3>🥚 Яйца и коллекция</h3>
+        <p id="eggInfo">Вылупляй пчёл разных редкостей. Каждая пчела усиливает улей!</p>
+        <div class="kingdom-actions"><button class="btn" id="hatchEgg">Вылупить яйцо · 750 🍯</button></div>
+        <div class="bee-collection" id="beeCollection"></div>
+      </div>
+      <div class="kingdom-card">
+        <h3>🏘️ Город улья</h3>
+        <p>Строй здания, которые приносят дополнительный нектар каждую секунду.</p>
+        <div id="cityBuildings"></div>
+      </div>
+      <div class="kingdom-card">
+        <h3>⚔️ Битва с боссом</h3>
+        <div class="kingdom-metric" id="bossName">🐝 Дикий шершень</div>
+        <div class="boss-health"><div id="bossHealth" style="width:100%"></div></div>
+        <p id="bossInfo">Победи врага и получи кристаллы для лаборатории!</p>
+        <button class="btn" id="bossAttack">Атаковать · 1 000 🍯</button>
+      </div>
+      <div class="kingdom-card">
+        <h3>🧬 Лаборатория мутаций</h3>
+        <p id="labInfo">Потрать кристалл и нектар, чтобы улучшить случайную пчелу. Редкость может вырасти!</p>
+        <button class="btn" id="mutateBee">Мутировать пчелу · 1 💎 + 2 000 🍯</button>
+      </div>
+      <div class="kingdom-card">
+        <h3>🎉 Сезонное событие</h3>
+        <div class="season-banner" id="seasonBanner">🌸 Весенний фестиваль</div>
+        <p id="seasonInfo">Получай сезонные жетоны, собирая нектар, и обменивай их на награды.</p>
+        <button class="btn" id="seasonReward">Обменять 10 жетонов на яйцо</button>
+      </div>
+    </div>
+  </section>
+
   <section class="section" style="text-align:center">
     <button class="btn secondary" id="saveButton">💾 Сохранить игру</button>
     <button class="btn secondary" id="resetButton">🗑️ Сбросить прогресс</button>
@@ -293,7 +356,7 @@ const SAVE_KEY="beeRespectClicker";
   let tab='play';
   if(el.classList.contains('game-grid')||el.classList.contains('daily-panel'))tab='play';
   else if(heading(el,'Другие миры'))tab='worlds';
-  else if(heading(el,'Задания пчелиной королевы')||heading(el,'Золотая пчёлка')||heading(el,'Экспедиции'))tab='activities';
+  else if(heading(el,'Задания пчелиной королевы')||heading(el,'Золотая пчёлка')||heading(el,'Экспедиции')||heading(el,'Королевство пчёл'))tab='activities';
   else if(heading(el,'Пчелиная биржа'))tab='market';
   else if(heading(el,'Достижения')||el.classList.contains('prestige')||heading(el,'Твоя пчелиная статистика')||el.style.textAlign==='center')tab='progress';
   pages[tab].appendChild(el);
@@ -354,7 +417,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{}};
+ return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -373,6 +436,13 @@ try{
   state.stockHoldings=old.stockHoldings&&typeof old.stockHoldings==="object"?old.stockHoldings:{};
   state.stockPrices={...defaultState().stockPrices,...(old.stockPrices||{})};
   state.stockChanges=old.stockChanges&&typeof old.stockChanges==="object"?old.stockChanges:{};
+  state.queenLevel=Math.max(1,Number(old.queenLevel)||1);
+  state.bees=Array.isArray(old.bees)?old.bees:[];
+  state.buildings={apiary:0,greenhouse:0,workshop:0,...(old.buildings||{})};
+  state.bossWins=Math.max(0,Number(old.bossWins)||0);
+  state.crystals=Math.max(0,Number(old.crystals)||0);
+  state.eventTokens=Math.max(0,Number(old.eventTokens)||0);
+  state.mutations=Math.max(0,Number(old.mutations)||0);
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -384,12 +454,14 @@ function format(n){
  return n.toFixed(n>=100?0:n>=10?1:2)+" "+units[i];
 }
 function currentWorld(){return worldData.find(w=>w.id===state.world)||worldData[0]}
-function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05)*currentWorld().multiplier}
+function beeBonus(){return state.bees.reduce((sum,id)=>sum+(beeTypes.find(b=>b.id===id)?.bonus||0),0)}
+function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05+(state.queenLevel-1)*.08+beeBonus())*currentWorld().multiplier}
 function clickPower(){return (1+state.upgrades.flowers)*multiplier()}
 function income(){
  let value=0;
  upgradeData.filter(u=>u.id!=="flowers").forEach(u=>value+=state.upgrades[u.id]*u.power);
- return value*multiplier();
+ const city=buildingData.reduce((sum,b)=>sum+(state.buildings[b.id]||0)*b.power,0);
+ return (value+city)*multiplier();
 }
 function cost(u){return Math.floor(u.base*Math.pow(1.55,state.upgrades[u.id]))}
 function showToast(message){
@@ -397,7 +469,7 @@ function showToast(message){
  clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove("show"),2200);
 }
 function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(state))}
-function gain(amount){state.nectar+=amount;state.totalNectar+=amount}
+function gain(amount){state.nectar+=amount;state.totalNectar+=amount;state.eventTokens+=Math.max(0,Math.floor(amount/1000))}
 function clickBee(e){
  state.questClicks++;
  const amount=clickPower();gain(amount);
@@ -585,6 +657,90 @@ function updateStockPrices(){
  });
  save();renderStocks();
 }
+
+/* Королева, коллекция, город, боссы, мутации и сезоны */
+const beeTypes=[
+ {id:"worker",name:"Рабочая",emoji:"🐝",rarity:"Обычная",className:"common",weight:48,bonus:.01},
+ {id:"clover",name:"Клеверная",emoji:"🍀",rarity:"Необычная",className:"uncommon",weight:25,bonus:.025},
+ {id:"ice",name:"Ледяная",emoji:"❄️",rarity:"Редкая",className:"rare",weight:14,bonus:.05},
+ {id:"fire",name:"Огненная",emoji:"🔥",rarity:"Эпическая",className:"epic",weight:8,bonus:.09},
+ {id:"gold",name:"Золотая",emoji:"🌟",rarity:"Легендарная",className:"legendary",weight:4,bonus:.16},
+ {id:"rainbow",name:"Радужная",emoji:"🌈",rarity:"Мифическая",className:"mythic",weight:1,bonus:.3}
+];
+const buildingData=[
+ {id:"apiary",name:"Малая пасека",emoji:"🏡",base:1800,power:8},
+ {id:"greenhouse",name:"Цветочная теплица",emoji:"🌺",base:6500,power:32},
+ {id:"workshop",name:"Медовая фабрика",emoji:"🏭",base:22000,power:115}
+];
+const bossNames=["Дикий шершень","Королева ос","Паук-похититель","Древний скорпион","Теневой дракон"];
+function beeById(id){return beeTypes.find(b=>b.id===id)||beeTypes[0]}
+function renderKingdom(){
+ const qCost=Math.floor(2500*Math.pow(1.85,state.queenLevel-1));
+ document.getElementById("queenLevel").textContent="Уровень "+state.queenLevel;
+ document.getElementById("queenInfo").textContent="Бонус королевы: +"+((state.queenLevel-1)*8)+"% ко всему доходу · цена: "+format(qCost)+" 🍯";
+ const qb=document.getElementById("queenUpgrade");qb.textContent="Улучшить · "+format(qCost)+" 🍯";qb.disabled=state.nectar<qCost;
+ document.getElementById("eggInfo").textContent="Пчёл в коллекции: "+state.bees.length+" · бонус коллекции: +"+(beeBonus()*100).toFixed(1)+"%";
+ const collection=document.getElementById("beeCollection");collection.innerHTML="";
+ if(!state.bees.length){collection.innerHTML='<div class="muted">Пока нет пчёл. Вылупи первое яйцо!</div>';}
+ state.bees.forEach((id,index)=>{
+  const b=beeById(id),el=document.createElement("div");el.className="bee-unit rarity-"+b.className;
+  el.innerHTML='<div class="emoji">'+b.emoji+'</div><strong>'+b.name+'</strong><small>'+b.rarity+'</small>';
+  collection.appendChild(el);
+ });
+ const egg=document.getElementById("hatchEgg");egg.disabled=state.nectar<750;
+ const city=document.getElementById("cityBuildings");city.innerHTML="";
+ buildingData.forEach(b=>{
+  const level=state.buildings[b.id]||0,price=Math.floor(b.base*Math.pow(1.7,level));
+  const row=document.createElement("div");row.className="building-row";
+  row.innerHTML='<div><strong>'+b.emoji+' '+b.name+' · '+level+'</strong><small>+'+format(b.power)+' нектара/сек · цена '+format(price)+'</small></div><button class="btn" '+(state.nectar<price?'disabled':'')+'>Построить</button>';
+  row.querySelector("button").addEventListener("click",()=>{if(state.nectar<price)return;state.nectar-=price;state.buildings[b.id]=(state.buildings[b.id]||0)+1;save();render();showToast("Новое здание построено! "+b.emoji)});
+  city.appendChild(row);
+ });
+ const bossIndex=state.bossWins%bossNames.length,health=Math.max(0,100-(state.bossWins%5)*0);
+ document.getElementById("bossName").textContent=["🐝","👑","🕷️","🦂","🐉"][bossIndex]+" "+bossNames[bossIndex];
+ document.getElementById("bossHealth").style.width=health+"%";
+ document.getElementById("bossInfo").textContent="Побед: "+state.bossWins+" · Награда: "+format(1500+state.bossWins*500)+" нектара и 1 💎";
+ const attack=document.getElementById("bossAttack"),bossCost=Math.floor(1000*Math.pow(1.35,state.bossWins));
+ attack.textContent="Вызвать на бой · "+format(bossCost)+" 🍯";attack.disabled=state.nectar<bossCost;
+ document.getElementById("labInfo").textContent="Кристаллы: "+state.crystals+" 💎 · Проведено мутаций: "+state.mutations;
+ document.getElementById("mutateBee").disabled=!state.bees.length||state.crystals<1||state.nectar<2000;
+ const seasons=["🌸 Весенний фестиваль","☀️ Летнее цветение","🍂 Осенний сбор","❄️ Зимняя сказка"];
+ const season=seasons[Math.floor(Date.now()/604800000)%4];
+ document.getElementById("seasonBanner").textContent=season;
+ document.getElementById("seasonInfo").textContent="Сезонные жетоны: "+state.eventTokens+" · Собирай нектар, чтобы получать жетоны.";
+ document.getElementById("seasonReward").disabled=state.eventTokens<10;
+}
+function hatchBee(){
+ if(state.nectar<750)return;state.nectar-=750;
+ let roll=Math.random()*100,chosen=beeTypes[0];
+ for(const b of beeTypes){roll-=b.weight;if(roll<=0){chosen=b;break}}
+ state.bees.push(chosen.id);save();render();showToast("Из яйца вылупилась "+chosen.name+" пчёлка "+chosen.emoji+" · "+chosen.rarity+"!");
+}
+document.getElementById("hatchEgg").addEventListener("click",hatchBee);
+document.getElementById("queenUpgrade").addEventListener("click",()=>{
+ const price=Math.floor(2500*Math.pow(1.85,state.queenLevel-1));if(state.nectar<price)return;
+ state.nectar-=price;state.queenLevel++;save();render();showToast("Королева стала сильнее! 👑");
+});
+document.getElementById("bossAttack").addEventListener("click",()=>{
+ const price=Math.floor(1000*Math.pow(1.35,state.bossWins));if(state.nectar<price)return;
+ state.nectar-=price;state.bossWins++;const reward=1500+(state.bossWins-1)*500;
+ gain(reward);state.crystals++;save();render();showToast("Босс побеждён! +"+format(reward)+" нектара и 1 💎");
+});
+document.getElementById("mutateBee").addEventListener("click",()=>{
+ if(!state.bees.length||state.crystals<1||state.nectar<2000)return;
+ state.crystals--;state.nectar-=2000;
+ const index=Math.floor(Math.random()*state.bees.length),old=beeById(state.bees[index]);
+ const oldIndex=beeTypes.findIndex(b=>b.id===old.id);
+ const upgraded=Math.random()<.72?Math.min(beeTypes.length-1,oldIndex+1):Math.max(0,oldIndex-1);
+ state.bees[index]=beeTypes[upgraded].id;state.mutations++;save();render();
+ showToast("Мутация завершена: "+old.emoji+" → "+beeTypes[upgraded].emoji+" "+beeTypes[upgraded].name+"!");
+});
+document.getElementById("seasonReward").addEventListener("click",()=>{
+ if(state.eventTokens<10)return;state.eventTokens-=10;state.nectar=Math.max(0,state.nectar);
+ let roll=Math.random()*100,chosen=beeTypes[0];for(const b of beeTypes){roll-=b.weight;if(roll<=0){chosen=b;break}}
+ state.bees.push(chosen.id);save();render();showToast("Сезонный подарок! Новая пчела: "+chosen.emoji+" "+chosen.name);
+});
+
 function render(){
  const w=currentWorld();
  document.getElementById("nectar").textContent=format(state.nectar);
@@ -599,7 +755,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

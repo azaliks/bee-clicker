@@ -371,7 +371,7 @@ const SAVE_KEY="beeRespectClicker";
   {id:'activities',label:'Активности',icon:'🎯'},
   {id:'worlds',label:'Миры',icon:'🌍'},
   {id:'market',label:'Биржа',icon:'📈'},
-  {id:'shop',label:'Магазин',icon:'🛍️'},\n  {id:'growth',label:'Развитие',icon:'🧪'},
+  {id:'shop',label:'Магазин',icon:'🛍️'},
   {id:'progress',label:'Прогресс',icon:'🏆'}
  ];
  function heading(el,txt){const h=el.querySelector('h2');return !!h&&h.textContent.includes(txt)}
@@ -383,7 +383,7 @@ const SAVE_KEY="beeRespectClicker";
   if(el.classList.contains('game-grid')||el.classList.contains('daily-panel'))tab='play';
   else if(heading(el,'Другие миры'))tab='worlds';
   else if(heading(el,'Задания пчелиной королевы')||heading(el,'Золотая пчёлка')||heading(el,'Экспедиции')||heading(el,'Королевство пчёл'))tab='activities';
-  else if(heading(el,'Новые приключения'))tab='growth';\n  else if(heading(el,'Магазин пчёлки'))tab='shop';
+  else if(heading(el,'Магазин пчёлки'))tab='shop';
   else if(heading(el,'Пчелиная биржа'))tab='market';
   else if(heading(el,'Достижения')||el.classList.contains('prestige')||heading(el,'Твоя пчелиная статистика')||el.style.textAlign==='center')tab='progress';
   pages[tab].appendChild(el);
@@ -455,7 +455,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,hiveRooms:{nursery:0,treasury:0,workshop:0},pets:[],equippedPet:"",chestsOpened:0,queenTrust:0,flowerSeeds:0,dungeonFloor:1,dungeonHp:100,craftedItems:[],equippedRelic:"",title:"",ownedShopItems:[],equippedWing:"",equippedSkin:"bee",meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,ownedShopItems:[],equippedWing:"",equippedSkin:"bee",meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -484,7 +484,7 @@ try{
   state.bossHp=Math.max(1,Math.min(100,Number(old.bossHp)||100));
   state.crystals=Math.max(0,Number(old.crystals)||0);
   state.eventTokens=Math.max(0,Number(old.eventTokens)||0);
-  state.mutations=Math.max(0,Number(old.mutations)||0);\n  state.hiveRooms={nursery:0,treasury:0,workshop:0,...(old.hiveRooms||{})};\n  state.pets=Array.isArray(old.pets)?old.pets:[];state.equippedPet=typeof old.equippedPet==="string"?old.equippedPet:"";\n  state.chestsOpened=Math.max(0,Number(old.chestsOpened)||0);state.queenTrust=Math.max(0,Number(old.queenTrust)||0);\n  state.flowerSeeds=Math.max(0,Number(old.flowerSeeds)||0);state.dungeonFloor=Math.max(1,Number(old.dungeonFloor)||1);\n  state.dungeonHp=Math.max(0,Number(old.dungeonHp)||100);state.craftedItems=Array.isArray(old.craftedItems)?old.craftedItems:[];\n  state.equippedRelic=typeof old.equippedRelic==="string"?old.equippedRelic:"";state.title=typeof old.title==="string"?old.title:"";
+  state.mutations=Math.max(0,Number(old.mutations)||0);
   state.meadowHarvest=Math.max(0,Number(old.meadowHarvest)||0);
   state.ownedShopItems=Array.isArray(old.ownedShopItems)?old.ownedShopItems:[];
   state.equippedWing=typeof old.equippedWing==="string"?old.equippedWing:"";
@@ -502,7 +502,7 @@ function format(n){
 function currentWorld(){return worldData.find(w=>w.id===state.world)||worldData[0]}
 function beeBonus(){return state.bees.reduce((sum,id)=>sum+(beeTypes.find(b=>b.id===id)?.bonus||0),0)}
 function wingBonus(){const wing=shopWings.find(w=>w.id===state.equippedWing);return wing?wing.bonus:0}
-function petBonus(){const p=petTypes.find(x=>x.id===state.equippedPet);return p?p.bonus:0}\nfunction roomBonus(){return Object.values(state.hiveRooms||{}).reduce((a,b)=>a+b,0)*.015}\nfunction relicBonus(){const r=craftRelics.find(x=>x.id===state.equippedRelic);return r?r.bonus:0}\nfunction multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05+(state.queenLevel-1)*.08+beeBonus()+wingBonus()+petBonus()+roomBonus()+relicBonus())*currentWorld().multiplier}
+function multiplier(){return (1+state.pollen*.12+(state.hiveLevel-1)*.05+(state.queenLevel-1)*.08+beeBonus()+wingBonus())*currentWorld().multiplier}
 function clickPower(){return (1+state.upgrades.flowers)*multiplier()}
 function income(){
  let value=0;
@@ -877,107 +877,7 @@ document.getElementById("seasonReward").addEventListener("click",()=>{
  state.bees.push(chosen.id);save();render();showToast("Сезонный подарок! Новая пчела: "+chosen.emoji+" "+chosen.name);
 });
 
-
-const petTypes=[
- {id:"firefly",name:"Светлячок",emoji:"✨",bonus:.04,weight:45,desc:"+4% к доходу"},
- {id:"bumble",name:"Шмелёнок",emoji:"🐝",bonus:.07,weight:30,desc:"+7% к доходу"},
- {id:"lady",name:"Божья коровка",emoji:"🐞",bonus:.11,weight:18,desc:"+11% к доходу"},
- {id:"dragon",name:"Дракончик",emoji:"🐉",bonus:.18,weight:6,desc:"+18% к доходу"},
- {id:"phoenix",name:"Феникс",emoji:"🔥",bonus:.28,weight:1,desc:"+28% к доходу"}
-];
-const roomTypes=[
- {id:"nursery",name:"Детская",emoji:"🥚",desc:"Питомник пчёл",baseHoney:8,baseCrystal:0},
- {id:"treasury",name:"Сокровищница",emoji:"💎",desc:"Комната редких находок",baseHoney:14,baseCrystal:1},
- {id:"workshop",name:"Мастерская",emoji:"⚒️",desc:"Место для создания артефактов",baseHoney:12,baseCrystal:1}
-];
-const craftRelics=[
- {id:"amulet",name:"Медовый амулет",emoji:"🍯",bonus:.05,honey:18,crystals:0,seeds:3,desc:"+5% к доходу"},
- {id:"compass",name:"Крылатый компас",emoji:"🧭",bonus:.10,honey:35,crystals:2,seeds:7,desc:"+10% к доходу"},
- {id:"crown",name:"Кристальная корона",emoji:"👑",bonus:.18,honey:65,crystals:5,seeds:12,desc:"+18% к доходу"}
-];
-function weightedPet(){
- let roll=Math.random()*100;
- for(const p of petTypes){roll-=p.weight;if(roll<=0)return p;}
- return petTypes[0];
-}
-function titleOptions(){
- return [
-  {id:"starter",name:"Юный пчеловод",emoji:"🌱",ok:state.totalNectar>=1000},
-  {id:"collector",name:"Собиратель нектара",emoji:"🌼",ok:(state.meadowHarvest||0)>=100},
-  {id:"rich",name:"Медовый магнат",emoji:"🍯",ok:state.honey>=50},
-  {id:"explorer",name:"Покоритель подземелий",emoji:"⚔️",ok:state.dungeonFloor>=6},
-  {id:"royal",name:"Друг королевы",emoji:"👑",ok:state.queenTrust>=5},
-  {id:"legend",name:"Легенда улья",emoji:"🏆",ok:state.rebirths>=5}
- ];
-}
-function renderNewSystems(){
- const root=document.getElementById("newSystemsRoot");if(!root)return;
- const totalRooms=Object.values(state.hiveRooms).reduce((a,b)=>a+b,0);
- const pet=petTypes.find(p=>p.id===state.equippedPet);
- const relic=craftRelics.find(p=>p.id===state.equippedRelic);
- const nextTrust=(state.queenTrust+1)*5000;
- const dungeonMax=100+(state.dungeonFloor-1)*35;
- const titles=titleOptions();
- root.innerHTML=
- '<div class="kingdom-card"><h3>🏰 Расширение улья</h3><p>Строй комнаты. Каждая комната даёт +1,5% к доходу, а уровни сохраняются при перерождении.</p><div class="kingdom-metric">'+totalRooms+' комнат</div>'+
- roomTypes.map(x=>{const lv=state.hiveRooms[x.id]||0,h=Math.floor(x.baseHoney*Math.pow(1.65,lv)),c=x.baseCrystal;return '<div class="building-row"><div><strong>'+x.emoji+' '+x.name+' · ур. '+lv+'</strong><small>'+x.desc+'</small></div><button class="btn" data-action="room" data-id="'+x.id+'"> '+h+' 🍯'+(c?' · '+c+' 💎':'')+'</button></div>'}).join('')+'</div>'+
- '<div class="kingdom-card"><h3>🐾 Питомцы-помощники</h3><p>Вылупляй питомцев. Экипированный питомец усиливает доход.</p><div class="kingdom-metric">'+(pet?pet.emoji+" "+pet.name:"Питомец не выбран")+'</div><p>'+(pet?pet.desc:"Пока питомца нет")+' · найдено: '+state.pets.length+'</p><button class="btn" data-action="pet-egg">Вылупить питомца · 15 🍯</button><div class="bee-collection">'+state.pets.map(id=>{const p=petTypes.find(x=>x.id===id);return p?'<div class="bee-unit"><div class="emoji">'+p.emoji+'</div><strong>'+p.name+'</strong><small>'+p.desc+'</small><button data-action="equip-pet" data-id="'+p.id+'" class="'+(state.equippedPet===p.id?'equipped':'')+'">'+(state.equippedPet===p.id?'Надет':'Экипировать')+'</button></div>':''}).join('')+'</div></div>'+
- '<div class="kingdom-card"><h3>🎁 Сундуки с сокровищами</h3><p>Внутри могут быть мёд, кристаллы, семена редких цветов и даже питомцы.</p><div class="kingdom-metric">Открыто: '+state.chestsOpened+'</div><button class="btn" data-action="chest">Открыть сундук · 1 💎 + 5 🍯</button></div>'+
- '<div class="kingdom-card"><h3>👑 Доверие королевы</h3><p>Королева выдаёт новое поручение за каждые '+format(5000)+' собранного нектара. Выполняй задания и получай редкие семена.</p><div class="kingdom-metric">'+state.queenTrust+' уровень доверия</div><p>Следующая цель: '+format(nextTrust)+' / '+format(state.totalNectar)+' нектара</p><div class="progress"><div style="width:'+Math.min(100,state.totalNectar/nextTrust*100)+'%"></div></div><button class="btn" data-action="queen-task" '+(state.totalNectar<nextTrust?'disabled':'')+'>Забрать награду поручения</button></div>'+
- '<div class="kingdom-card"><h3>🌺 Редкие цветы</h3><p>Выращивай редкие цветы и собирай семена для создания мощных артефактов.</p><div class="kingdom-metric">🌱 '+state.flowerSeeds+' семян</div><button class="btn" data-action="flower">Вырастить редкий цветок · 4 🍯</button></div>'+
- '<div class="kingdom-card"><h3>⚔️ Подземелье</h3><p>Пробивайся через этажи, сражайся с охраной сокровищ и забирай награды. С каждым этажом враги сильнее.</p><div class="kingdom-metric">Этаж '+state.dungeonFloor+'</div><div class="boss-health"><div style="width:'+Math.max(0,Math.min(100,state.dungeonHp/dungeonMax*100))+'%"></div></div><p>Здоровье врага: '+Math.ceil(state.dungeonHp)+' / '+dungeonMax+' · атака стоит 2 🍯</p><button class="btn" data-action="dungeon" '+(state.honey<2?'disabled':'')+'>Атаковать врага</button></div>'+
- '<div class="kingdom-card"><h3>🏅 Титулы игрока</h3><p>Открывай титулы за достижения. Выбранный титул будет отображаться в твоём профиле.</p><div class="kingdom-metric">'+(titles.find(x=>x.id===state.title)?.emoji||"🎖️")+' '+(titles.find(x=>x.id===state.title)?.name||"Без титула")+'</div><div class="bee-collection">'+titles.map(t=>'<div class="bee-unit"><div class="emoji">'+t.emoji+'</div><strong>'+t.name+'</strong><small>'+(t.ok?'Открыт':'Ещё не открыт')+'</small><button data-action="title" data-id="'+t.id+'" '+(!t.ok?'disabled':'')+'>'+(state.title===t.id?'Выбран':'Выбрать')+'</button></div>').join('')+'</div></div>'+
- '<div class="kingdom-card"><h3>⚒️ Мастерская крафта</h3><p>Создавай постоянные артефакты. Можно изготовить каждый артефакт один раз и экипировать один из них.</p><div class="kingdom-metric">'+(relic?relic.emoji+" "+relic.name:"Нет артефакта")+'</div><p>Материалы: '+state.honey+' 🍯 · '+state.crystals+' 💎 · '+state.flowerSeeds+' 🌱</p>'+craftRelics.map(x=>{const owned=state.craftedItems.includes(x.id),equipped=state.equippedRelic===x.id;return '<div class="building-row"><div><strong>'+x.emoji+' '+x.name+'</strong><small>'+x.desc+' · '+x.honey+' 🍯 '+x.crystals+' 💎 '+x.seeds+' 🌱</small></div><button class="btn" data-action="'+(owned?'equip-relic':'craft')+'" data-id="'+x.id+'">'+(equipped?'Надет ✓':owned?'Экипировать':'Создать')+'</button></div>'}).join('')+'</div>';
-}
-function handleNewSystemAction(action,id){
- if(action==="room"){
-  const x=roomTypes.find(v=>v.id===id);if(!x)return;
-  const lv=state.hiveRooms[id]||0,h=Math.floor(x.baseHoney*Math.pow(1.65,lv)),c=x.baseCrystal;
-  if(state.honey<h||state.crystals<c){showToast("Не хватает ресурсов для комнаты");return;}
-  state.honey-=h;state.crystals-=c;state.hiveRooms[id]=lv+1;showToast("Комната улья улучшена! 🏰");
- }else if(action==="pet-egg"){
-  if(state.honey<15){showToast("Нужно 15 мёда 🍯");return;}
-  state.honey-=15;const p=weightedPet();state.pets.push(p.id);state.equippedPet=p.id;showToast("Найден питомец: "+p.emoji+" "+p.name+"!");
- }else if(action==="equip-pet"){
-  if(!state.pets.includes(id))return;state.equippedPet=id;showToast("Питомец экипирован! 🐾");
- }else if(action==="chest"){
-  if(state.crystals<1||state.honey<5){showToast("Для сундука нужен 1 💎 и 5 🍯");return;}
-  state.crystals--;state.honey-=5;state.chestsOpened++;
-  const roll=Math.random();
-  if(roll<.48){const n=8+Math.floor(Math.random()*13);state.honey+=n;showToast("В сундуке "+n+" мёда! 🍯");}
-  else if(roll<.73){const n=1+Math.floor(Math.random()*2);state.crystals+=n;showToast("В сундуке "+n+" кристалла! 💎");}
-  else if(roll<.94){const n=2+Math.floor(Math.random()*3);state.flowerSeeds+=n;showToast("Нашёл "+n+" семян редких цветов! 🌱");}
-  else{const p=weightedPet();state.pets.push(p.id);state.equippedPet=p.id;showToast("Редкая находка! Питомец "+p.emoji+" "+p.name+"!");}
- }else if(action==="queen-task"){
-  const need=(state.queenTrust+1)*5000;if(state.totalNectar<need)return;
-  state.queenTrust++;state.flowerSeeds+=2;state.crystals++;state.honey+=3;showToast("Королева довольна! +2 🌱 +1 💎 +3 🍯");
- }else if(action==="flower"){
-  if(state.honey<4){showToast("Нужно 4 мёда 🍯");return;}
-  state.honey-=4;const n=1+(Math.random()<.22?1:0);state.flowerSeeds+=n;showToast("Редкий цветок расцвёл! +"+n+" 🌱");
- }else if(action==="dungeon"){
-  if(state.honey<2)return;state.honey-=2;
-  const max=100+(state.dungeonFloor-1)*35;state.dungeonHp=Math.max(0,state.dungeonHp-(24+Math.min(30,state.queenLevel*2)+Math.floor(beeBonus()*50)));
-  if(state.dungeonHp<=0){
-   const floor=state.dungeonFloor;state.dungeonFloor++;state.dungeonHp=100+(state.dungeonFloor-1)*35;
-   state.honey+=4+Math.floor(floor/2);if(floor%3===0)state.crystals++;state.flowerSeeds+=1+Math.floor(floor/4);
-   showToast("Этаж "+floor+" пройден! Награда получена! 🎉");
-  }else showToast("Попадание! Осталось "+Math.ceil(state.dungeonHp)+" HP ⚔️");
- }else if(action==="title"){
-  const t=titleOptions().find(x=>x.id===id);if(!t||!t.ok)return;state.title=id;showToast("Титул выбран: "+t.name+" "+t.emoji);
- }else if(action==="equip-relic"){
-  if(!state.craftedItems.includes(id))return;state.equippedRelic=id;showToast("Артефакт экипирован! ✨");
- }else if(action==="craft"){
-  const x=craftRelics.find(v=>v.id===id);if(!x||state.craftedItems.includes(id))return;
-  if(state.honey<x.honey||state.crystals<x.crystals||state.flowerSeeds<x.seeds){showToast("Не хватает материалов для крафта ⚒️");return;}
-  state.honey-=x.honey;state.crystals-=x.crystals;state.flowerSeeds-=x.seeds;state.craftedItems.push(id);state.equippedRelic=id;showToast("Создан артефакт: "+x.emoji+" "+x.name+"!");
- }
- save();render();
-}
-document.getElementById("newSystemsRoot").addEventListener("click",e=>{
- const b=e.target.closest("button[data-action]");if(!b)return;
- handleNewSystemAction(b.dataset.action,b.dataset.id||"");
-});
-\nfunction renderShop(){
+function renderShop(){
  const wallet=document.getElementById("shopWallet");
  wallet.textContent="🍯 Мёд: "+format(state.honey)+"   ·   💎 Кристаллы: "+format(state.crystals)+"   ·   Бонус крыльев: +"+Math.round(wingBonus()*100)+"%";
  const wings=document.getElementById("shopWings"),skins=document.getElementById("shopSkins");
@@ -1023,7 +923,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();renderShop();renderNewSystems();updateMeadowHUD();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();renderShop();updateMeadowHUD();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

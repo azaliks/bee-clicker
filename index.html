@@ -469,7 +469,7 @@ function showToast(message){
  clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>el.classList.remove("show"),2200);
 }
 function save(){localStorage.setItem(SAVE_KEY,JSON.stringify(state))}
-function gain(amount){state.nectar+=amount;state.totalNectar+=amount;state.eventTokens+=Math.max(0,Math.floor(amount/1000))}
+function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
 function clickBee(e){
  state.questClicks++;
  const amount=clickPower();gain(amount);

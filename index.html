@@ -307,7 +307,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
         <p id="eggInfo">Вылупляй пчёл разных редкостей. Каждая пчела усиливает улей!</p>
         <div class="kingdom-actions"><button class="btn" id="hatchEgg">Вылупить яйцо · 8 🍯</button></div>
         <div class="bee-collection" id="beeCollection"></div>
-        <div class="equipment-panel"><strong>⚔️ Экипировка для боссов</strong><p class="muted" style="margin:5px 0">Выбери до 3 пчёл. Они будут сражаться с тобой и наносить дополнительный урон.</p><div class="equipment-slots" id="equipmentSlots"></div><small class="muted" id="equipmentDamage"></small></div>
+        <div class="equipment-panel"><strong>⚔️ Экипировка для боссов</strong><p class="muted" style="margin:5px 0">Выбери до 3 пчёл. Они будут сражаться с тобой и наносить дополнительный урон.</p><button class="btn" type="button" id="equipBestBees">✨ Экипировать лучшее</button><div class="equipment-slots" id="equipmentSlots"></div><small class="muted" id="equipmentDamage"></small></div>
       </div>
       <div class="kingdom-card">
         <h3>🏘️ Город улья</h3>
@@ -495,7 +495,7 @@ function save(){
 setInterval(save,5000);
 window.addEventListener("pagehide",save);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save()});
-function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;const progress=state.honeyRemainder+amount*(1+state.honeyTech*.25)/100;const made=Math.floor(progress);state.honey+=made;state.honeyRemainder=progress-made;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
+function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;const progress=state.honeyRemainder+amount*(1+state.honeyTech*.25)/300;const made=Math.floor(progress);state.honey+=made;state.honeyRemainder=progress-made;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
 function clickBee(e){
  state.questClicks++;
  const amount=clickPower();gain(amount);
@@ -700,7 +700,13 @@ const buildingData=[
 ];
 const bossNames=["Дикий шершень","Королева ос","Паук-похититель","Древний скорпион","Теневой дракон"];
 function beeById(id){return beeTypes.find(b=>b.id===id)||beeTypes[0]}
-function bossBeeDamage(id){const damage={worker:10,clover:16,ice:24,fire:34,gold:50,rainbow:75};return damage[id]||0}
+function bossBeeDamage(id){const damage={worker:2,clover:3,ice:4,fire:5,gold:7,rainbow:10};return damage[id]||0}
+function equipBestBees(){
+ state.equippedBees=state.bees.map((id,index)=>({index,damage:bossBeeDamage(id)}))
+  .sort((a,b)=>b.damage-a.damage||a.index-b.index).slice(0,3).map(x=>x.index);
+ save();render();showToast("Лучшие пчёлки экипированы! ⚔️");
+}
+document.getElementById("equipBestBees").addEventListener("click",equipBestBees);
 function toggleBeeEquipment(index){
  const slot=state.equippedBees.indexOf(index);
  if(slot>=0){state.equippedBees.splice(slot,1);showToast("Пчёлка снята с экипировки");}
@@ -715,7 +721,7 @@ function renderKingdom(){
  const qb=document.getElementById("queenUpgrade");qb.textContent="Улучшить · "+format(qCost)+" 🍯";qb.disabled=state.honey<qCost;
  const techCost=Math.floor(25*Math.pow(1.8,state.honeyTech));
  document.getElementById("honeyTechLevel").textContent="Уровень "+state.honeyTech;
- document.getElementById("honeyTechInfo").textContent="Бонус производства мёда: +"+(state.honeyTech*25)+"% · цена: "+format(techCost)+" мёда";
+ document.getElementById("honeyTechInfo").textContent="Бонус производства мёда: +"+(state.honeyTech*25)+"% · базовый сбор: 1 🍯 за 300 нектара · цена: "+format(techCost)+" мёда";
  const techButton=document.getElementById("honeyTechUpgrade");techButton.textContent="Улучшить · "+format(techCost)+" 🍯";techButton.disabled=state.honey<techCost;
  document.getElementById("eggInfo").textContent="Пчёл в коллекции: "+state.bees.length+" · бонус коллекции: +"+(beeBonus()*100).toFixed(1)+"%";
  const collection=document.getElementById("beeCollection");collection.innerHTML="";
@@ -773,7 +779,7 @@ document.getElementById("queenUpgrade").addEventListener("click",()=>{
 });
 document.getElementById("bossAttack").addEventListener("click",()=>{
  const price=Math.floor(10*Math.pow(1.35,state.bossWins));if(state.honey<price)return;
- state.honey-=price;const teamDamage=state.equippedBees.reduce((sum,index)=>sum+bossBeeDamage(state.bees[index]),0);const damage=Math.min(state.bossHp,10+state.queenLevel*2+teamDamage);state.bossHp-=damage;
+ state.honey-=price;const teamDamage=state.equippedBees.reduce((sum,index)=>sum+bossBeeDamage(state.bees[index]),0);const damage=Math.min(state.bossHp,Math.min(35,5+Math.min(state.queenLevel,10)+teamDamage));state.bossHp-=damage;
  if(state.bossHp<=0){state.bossWins++;state.bossHp=100;const reward=1500+(state.bossWins-1)*500;gain(reward);state.crystals++;save();render();showToast("Босс повержен! +"+format(reward)+" нектара и 1 💎");}
  else{save();render();showToast("Попадание! Урон: "+damage+"% ⚔️");}
 });

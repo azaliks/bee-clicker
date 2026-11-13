@@ -495,7 +495,7 @@ function save(){
 setInterval(save,5000);
 window.addEventListener("pagehide",save);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save()});
-function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;const progress=state.honeyRemainder+amount*(1+state.honeyTech*.25)/1000;const made=Math.floor(progress);state.honey+=made;state.honeyRemainder=progress-made;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
+function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;const progress=state.honeyRemainder+amount*(1+state.honeyTech*.25)/5000;const made=Math.floor(progress);state.honey+=made;state.honeyRemainder=progress-made;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
 function clickBee(e){
  state.questClicks++;
  const amount=clickPower();gain(amount);
@@ -721,7 +721,7 @@ function renderKingdom(){
  const qb=document.getElementById("queenUpgrade");qb.textContent="Улучшить · "+format(qCost)+" 🍯";qb.disabled=state.honey<qCost;
  const techCost=Math.floor(25*Math.pow(1.8,state.honeyTech));
  document.getElementById("honeyTechLevel").textContent="Уровень "+state.honeyTech;
- document.getElementById("honeyTechInfo").textContent="Бонус производства мёда: +"+(state.honeyTech*25)+"% · базовый сбор: 1 🍯 за 1 000 нектара · цена: "+format(techCost)+" мёда";
+ document.getElementById("honeyTechInfo").textContent="Бонус производства мёда: +"+(state.honeyTech*25)+"% · базовый сбор: 1 🍯 за 5 000 нектара · цена: "+format(techCost)+" мёда";
  const techButton=document.getElementById("honeyTechUpgrade");techButton.textContent="Улучшить · "+format(techCost)+" 🍯";techButton.disabled=state.honey<techCost;
  document.getElementById("eggInfo").textContent="Пчёл в коллекции: "+state.bees.length+" · бонус коллекции: +"+(beeBonus()*100).toFixed(1)+"%";
  const collection=document.getElementById("beeCollection");collection.innerHTML="";

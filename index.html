@@ -261,7 +261,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
     <h2>📈 Пчелиная биржа</h2>
     <p class="muted">Покупай акции пчелиных компаний за нектар, следи за курсом и продавай их, когда цена вырастет. Котировки меняются каждые 15 секунд. Акции сохраняются даже после перерождения!</p>
     <div class="stock-summary">
-      <div class="stat"><div class="number" id="stockBalance">0</div><small>Стоимость портфеля 🍯</small></div>
+      <div class="stat"><div class="number" id="stockBalance">0</div><small>Стоимость портфеля 💧</small></div>
       <div class="stat"><div class="number" id="stockInvested">0</div><small>Вложено нектара</small></div>
       <div class="stat"><div class="number" id="stockProfit">0</div><small>Прибыль / убыток</small></div>
     </div>
@@ -304,7 +304,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
       <div class="kingdom-card">
         <h3>🥚 Яйца и коллекция</h3>
         <p id="eggInfo">Вылупляй пчёл разных редкостей. Каждая пчела усиливает улей!</p>
-        <div class="kingdom-actions"><button class="btn" id="hatchEgg">Вылупить яйцо · 750 🍯</button></div>
+        <div class="kingdom-actions"><button class="btn" id="hatchEgg">Вылупить яйцо · 8 🍯</button></div>
         <div class="bee-collection" id="beeCollection"></div>
       </div>
       <div class="kingdom-card">
@@ -317,12 +317,12 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
         <div class="kingdom-metric" id="bossName">🐝 Дикий шершень</div>
         <div class="boss-health"><div id="bossHealth" style="width:100%"></div></div>
         <p id="bossInfo">Победи врага и получи кристаллы для лаборатории!</p>
-        <button class="btn" id="bossAttack">Атаковать · 1 000 🍯</button>
+        <button class="btn" id="bossAttack">Атаковать · 10 🍯</button>
       </div>
       <div class="kingdom-card">
         <h3>🧬 Лаборатория мутаций</h3>
         <p id="labInfo">Потрать кристалл и нектар, чтобы улучшить случайную пчелу. Редкость может вырасти!</p>
-        <button class="btn" id="mutateBee">Мутировать пчелу · 1 💎 + 2 000 🍯</button>
+        <button class="btn" id="mutateBee">Мутировать пчелу · 1 💎 + 20 🍯</button>
       </div>
       <div class="kingdom-card">
         <h3>🎉 Сезонное событие</h3>
@@ -497,7 +497,7 @@ function clickBee(e){
  state.questClicks++;
  const amount=clickPower();gain(amount);
  const rect=e.currentTarget.getBoundingClientRect();
- const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(amount)+" 🍯";
+ const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(amount)+" 💧";
  t.style.left=(rect.left+rect.width/2)+"px";t.style.top=(rect.top+rect.height/2)+"px";
  document.body.appendChild(t);setTimeout(()=>t.remove(),850);render();
 }
@@ -513,7 +513,7 @@ function renderUpgrades(){
  upgradeData.forEach(u=>{
   const price=cost(u),level=state.upgrades[u.id];
   const el=document.createElement("div");el.className="upgrade";
-  el.innerHTML=`<div class="upgrade-icon">${u.emoji}</div><div class="upgrade-info"><strong>${u.name} · ${level}</strong><small>${u.desc}</small></div><button class="btn" ${state.nectar<price?"disabled":""}>${format(price)} 🍯</button>`;
+  el.innerHTML=`<div class="upgrade-icon">${u.emoji}</div><div class="upgrade-info"><strong>${u.name} · ${level}</strong><small>${u.desc}</small></div><button class="btn" ${state.nectar<price?"disabled":""}>${format(price)} 💧</button>`;
   el.querySelector("button").addEventListener("click",()=>buyUpgrade(u.id));root.appendChild(el);
  });
 }
@@ -570,7 +570,7 @@ function renderExpedition(){
  document.getElementById("hiveLevel").textContent="Уровень "+state.hiveLevel;
  document.getElementById("hiveDescription").textContent="Стоимость: "+format(cost)+" нектара · бонус к доходу: +"+((state.hiveLevel-1)*5)+"%";
  const hiveButton=document.getElementById("hiveUpgradeButton");
- hiveButton.textContent="Улучшить · "+format(cost)+" 🍯";
+ hiveButton.textContent="Улучшить · "+format(cost)+" 💧";
  hiveButton.disabled=state.nectar<cost;
 }
 document.getElementById("expeditionButton").addEventListener("click",()=>{
@@ -612,7 +612,7 @@ function renderQuests(){
   const el=document.createElement("div");el.className="quest-item";
   el.innerHTML=`<div class="quest-head"><div class="quest-emoji">${q.emoji}</div><div><strong>${q.name}</strong><small>${q.desc}</small></div></div>
    <div class="quest-progress"><div style="width:${current/q.goal*100}%"></div></div>
-   <div class="quest-bottom"><small>${format(current)} / ${format(q.goal)} · Награда: ${format(q.reward)} 🍯</small>
+   <div class="quest-bottom"><small>${format(current)} / ${format(q.goal)} · Награда: ${format(q.reward)} 💧</small>
    <button class="btn" ${!completed||claimed?"disabled":""}>${claimed?"Получено ✓":completed?"Забрать":"В процессе"}</button></div>`;
   el.querySelector("button").addEventListener("click",()=>{
    if(!completed||claimed)return;
@@ -638,9 +638,9 @@ function renderStocks(){
   const el=document.createElement("div");el.className="stock-card";
   const changeText=(change>=0?"+":"")+change.toFixed(1)+"%";
   el.innerHTML=`<div class="stock-top"><div class="stock-emoji">${stock.emoji}</div><div><strong>${stock.name}</strong><div class="stock-meta">${stock.ticker} · ${stock.description}</div></div></div>
-   <div class="stock-price">${format(price)} 🍯</div>
+   <div class="stock-price">${format(price)} 💧</div>
    <div class="stock-change ${change>=0?"up":"down"}">${changeText} за последнее изменение</div>
-   <div class="stock-meta">У тебя: ${format(h.qty)} акц. · Вложено: ${format(h.cost)} 🍯</div>
+   <div class="stock-meta">У тебя: ${format(h.qty)} акц. · Вложено: ${format(h.cost)} 💧</div>
    <div class="stock-actions"><button class="btn" data-buy>Купить 1</button><button class="btn secondary" data-buy-five>Купить 5</button><button class="btn secondary" data-sell>Продать 1</button><button class="btn secondary" data-sell-all>Продать всё</button></div>`;
   el.querySelector("[data-buy]").addEventListener("click",()=>buyStock(stock.id,1));
   el.querySelector("[data-buy-five]").addEventListener("click",()=>buyStock(stock.id,5));
@@ -670,7 +670,7 @@ function sellStock(id,qty){
  const averageCost=h.cost/h.qty;
  h.qty-=qty;h.cost=Math.max(0,h.cost-averageCost*qty);
  state.stockHoldings[id]=h;gain(proceeds);
- save();render();showToast("Продано акций: "+qty+" · +"+format(proceeds)+" 🍯");
+ save();render();showToast("Продано акций: "+qty+" · +"+format(proceeds)+" 💧");
 }
 function updateStockPrices(){
  stockData.forEach(stock=>{
@@ -802,12 +802,12 @@ function renderDaily(){
  const claimed=dailyDate===todayKey();
  document.getElementById("dailyButton").disabled=claimed;
  document.getElementById("dailyButton").textContent=claimed?"Уже получено ✓":"Забрать награду";
- document.getElementById("dailyText").textContent=claimed?"Возвращайся завтра за новым подарком!":"Твой подарок сегодня: "+format(500+state.rebirths*250)+" нектара 🍯";
+ document.getElementById("dailyText").textContent=claimed?"Возвращайся завтра за новым подарком!":"Твой подарок сегодня: "+format(500+state.rebirths*250)+" нектара 💧";
 }
 document.getElementById("dailyButton").addEventListener("click",()=>{
  if(dailyDate===todayKey())return;
  const bonus=500+state.rebirths*250;gain(bonus);dailyDate=todayKey();localStorage.setItem(DAILY_KEY,dailyDate);
- render();save();showToast("Ежедневный подарок: +"+format(bonus)+" 🍯");
+ render();save();showToast("Ежедневный подарок: +"+format(bonus)+" 💧");
 });
 let goldenTimer=null;
 let nectarRainTimer=null,nectarRainSpawn=null,nectarRainActive=false;
@@ -824,7 +824,7 @@ function renderNectarRainStatus(){
 }
 function spawnNectarDrop(){
  const drop=document.createElement("button");
- drop.className="nectar-drop";drop.type="button";drop.textContent=Math.random()<.18?"💎":"🍯";
+ drop.className="nectar-drop";drop.type="button";drop.textContent=Math.random()<.18?"💎":"💧";
  drop.setAttribute("aria-label","Собрать падающий нектар");
  drop.style.left=Math.max(8,Math.random()*(window.innerWidth-66))+"px";
  const reward=Math.max(15,Math.floor(25+income()*2+clickPower()*5));
@@ -832,7 +832,7 @@ function spawnNectarDrop(){
  drop.addEventListener("click",()=>{
   if(collected)return;collected=true;
   gain(reward);drop.remove();render();save();
-  const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(reward)+" 🍯";
+  const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(reward)+" 💧";
   t.style.left=drop.style.left;t.style.top=Math.max(80,window.innerHeight*.35)+"px";
   document.body.appendChild(t);setTimeout(()=>t.remove(),850);
  });

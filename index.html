@@ -99,6 +99,19 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 .quest-item small{color:#947e58;font-weight:800}
 .quest-progress{height:10px;background:#eee5d5;border-radius:20px;overflow:hidden;margin:10px 0}
 .quest-progress div{height:100%;background:linear-gradient(90deg,#f5cf57,#ed9c28);width:0}
+.stock-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.stock-card{background:#fff;border:1px solid #f0e3c8;border-radius:18px;padding:16px;color:#493719}
+.stock-top{display:flex;align-items:center;gap:10px}
+.stock-emoji{font-size:34px}
+.stock-price{font-size:24px;font-weight:900;margin:10px 0 3px}
+.stock-change{font-size:13px;font-weight:900}
+.stock-change.up{color:#29965a}.stock-change.down{color:#d45b4e}
+.stock-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.stock-actions button{flex:1;padding:9px 10px;font-size:13px}
+.stock-meta{color:#947e58;font-size:13px;font-weight:800}
+.stock-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.stock-summary .stat{padding:12px}
+@media(max-width:650px){.stock-grid{grid-template-columns:1fr}.stock-summary{grid-template-columns:1fr}}
 .quest-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.quest-list{grid-template-columns:1fr}}
 </style>
@@ -186,6 +199,17 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
   </section>
 
   <section class="section panel">
+    <h2>📈 Пчелиная биржа</h2>
+    <p class="muted">Покупай акции пчелиных компаний за нектар, следи за курсом и продавай их, когда цена вырастет. Котировки меняются каждые 15 секунд. Акции сохраняются даже после перерождения!</p>
+    <div class="stock-summary">
+      <div class="stat"><div class="number" id="stockBalance">0</div><small>Стоимость портфеля 🍯</small></div>
+      <div class="stat"><div class="number" id="stockInvested">0</div><small>Вложено нектара</small></div>
+      <div class="stat"><div class="number" id="stockProfit">0</div><small>Прибыль / убыток</small></div>
+    </div>
+    <div class="stock-grid" id="stockMarket"></div>
+  </section>
+
+  <section class="section panel">
     <h2>🧭 Экспедиции</h2>
     <p class="muted">Отправляй пчёл исследовать дальние цветочные поля. Они вернутся с нектаром и редкими находками.</p>
     <div class="extra-grid">
@@ -241,7 +265,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[]};
+ return {nectar:0,totalNectar:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{}};
 }
 let state=defaultState();
 try{
@@ -257,6 +281,9 @@ try{
   state.questClicks=Math.max(0,Number(old.questClicks)||0);
   state.expeditionsCompleted=Math.max(0,Number(old.expeditionsCompleted)||0);
   state.claimedQuests=Array.isArray(old.claimedQuests)?old.claimedQuests:[];
+  state.stockHoldings=old.stockHoldings&&typeof old.stockHoldings==="object"?old.stockHoldings:{};
+  state.stockPrices={...defaultState().stockPrices,...(old.stockPrices||{})};
+  state.stockChanges=old.stockChanges&&typeof old.stockChanges==="object"?old.stockChanges:{};
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -411,6 +438,64 @@ function renderQuests(){
   root.appendChild(el);
  });
 }
+const stockData=[
+ {id:"flower",name:"Цветочная корпорация",ticker:"FLOW",emoji:"🌼",description:"Поставки нектара и семян"},
+ {id:"honey",name:"Медовый холдинг",ticker:"HONEY",emoji:"🍯",description:"Производство элитного мёда"},
+ {id:"royal",name:"Королевские ульи",ticker:"ROYAL",emoji:"👑",description:"Премиальные ульи и технологии"},
+ {id:"lavender",name:"Лавандовые фермы",ticker:"LAV",emoji:"💜",description:"Редкие цветы и ароматный нектар"}
+];
+function holding(id){return state.stockHoldings[id]||{qty:0,cost:0}}
+function renderStocks(){
+ const root=document.getElementById("stockMarket");root.innerHTML="";
+ let totalValue=0,totalCost=0;
+ stockData.forEach(stock=>{
+  const h=holding(stock.id),price=state.stockPrices[stock.id],change=Number(state.stockChanges[stock.id])||0;
+  totalValue+=h.qty*price;totalCost+=h.cost;
+  const el=document.createElement("div");el.className="stock-card";
+  const changeText=(change>=0?"+":"")+change.toFixed(1)+"%";
+  el.innerHTML=`<div class="stock-top"><div class="stock-emoji">${stock.emoji}</div><div><strong>${stock.name}</strong><div class="stock-meta">${stock.ticker} · ${stock.description}</div></div></div>
+   <div class="stock-price">${format(price)} 🍯</div>
+   <div class="stock-change ${change>=0?"up":"down"}">${changeText} за последнее изменение</div>
+   <div class="stock-meta">У тебя: ${format(h.qty)} акц. · Вложено: ${format(h.cost)} 🍯</div>
+   <div class="stock-actions"><button class="btn" data-buy>Купить 1</button><button class="btn secondary" data-buy-five>Купить 5</button><button class="btn secondary" data-sell>Продать 1</button><button class="btn secondary" data-sell-all>Продать всё</button></div>`;
+  el.querySelector("[data-buy]").addEventListener("click",()=>buyStock(stock.id,1));
+  el.querySelector("[data-buy-five]").addEventListener("click",()=>buyStock(stock.id,5));
+  el.querySelector("[data-sell]").addEventListener("click",()=>sellStock(stock.id,1));
+  el.querySelector("[data-sell-all]").addEventListener("click",()=>sellStock(stock.id,h.qty));
+  el.querySelector("[data-sell]").disabled=h.qty<1;
+  el.querySelector("[data-sell-all]").disabled=h.qty<1;
+  root.appendChild(el);
+ });
+ document.getElementById("stockBalance").textContent=format(totalValue);
+ document.getElementById("stockInvested").textContent=format(totalCost);
+ const profit=totalValue-totalCost,profitEl=document.getElementById("stockProfit");
+ profitEl.textContent=(profit>0?"+":"")+format(profit);
+ profitEl.style.color=profit>=0?"#29965a":"#d45b4e";
+}
+function buyStock(id,qty){
+ const price=state.stockPrices[id],total=price*qty;
+ if(state.nectar<total){showToast("Не хватает нектара для покупки 📉");return}
+ state.nectar-=total;
+ const h=holding(id);h.qty+=qty;h.cost+=total;state.stockHoldings[id]=h;
+ save();render();showToast("Куплено акций: "+qty+" 📈");
+}
+function sellStock(id,qty){
+ const h=holding(id);qty=Math.min(qty,h.qty);
+ if(qty<=0)return;
+ const proceeds=state.stockPrices[id]*qty;
+ const averageCost=h.cost/h.qty;
+ h.qty-=qty;h.cost=Math.max(0,h.cost-averageCost*qty);
+ state.stockHoldings[id]=h;gain(proceeds);
+ save();render();showToast("Продано акций: "+qty+" · +"+format(proceeds)+" 🍯");
+}
+function updateStockPrices(){
+ stockData.forEach(stock=>{
+  const old=state.stockPrices[stock.id],change=(Math.random()*18)-8;
+  state.stockPrices[stock.id]=Math.max(10,Math.round(old*(1+change/100)));
+  state.stockChanges[stock.id]=change;
+ });
+ save();renderStocks();
+}
 function render(){
  const w=currentWorld();
  document.getElementById("nectar").textContent=format(state.nectar);
@@ -425,7 +510,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;
@@ -481,6 +566,7 @@ setInterval(()=>{
  save();
 },1000);
 applyWorld();render();scheduleGoldenBee();
+setInterval(updateStockPrices,15000);
 </script>
 </body>
 </html>

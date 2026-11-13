@@ -121,7 +121,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 @keyframes nectarFall{to{top:110vh;transform:rotate(360deg)}}
 .nectar-rain-banner{background:linear-gradient(120deg,#fff4b8,#ffe08a);border:1px solid #f5d16a;border-radius:17px;padding:13px 16px;margin-top:12px;color:#79530c;font-weight:900}
 .nectar-rain-banner.active{background:linear-gradient(120deg,#fff1a3,#ffc94d);box-shadow:0 0 22px #f4c64a66;animation:rainPulse 1s ease-in-out infinite alternate}
-.hunt-panel{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;padding:14px 16px;border-radius:17px;background:linear-gradient(120deg,#e8f8d9,#fff4c8);border:1px solid #dce9b6;color:#526329}.hunt-panel p{margin:5px 0 0;font-size:13px;font-weight:800;color:#7a8050}.hunt-score{font-size:23px;font-weight:900;color:#9a7418}.pollen-flower{position:fixed;z-index:36;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#fff,#ffe8a0);border:2px solid white;box-shadow:0 5px 22px #bd9a3e66;font-size:34px;cursor:pointer;animation:flowerPop .18s ease-out;touch-action:manipulation}.pollen-flower:active{transform:scale(.8)}@keyframes flowerPop{from{transform:scale(.3)}to{transform:scale(1)}}
+
 @keyframes rainPulse{to{transform:scale(1.01)}}
 
 /* Боковая навигация с всплывающим меню */
@@ -239,7 +239,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
     <p class="muted">Иногда появляется золотая пчёлка. Успей нажать на неё, чтобы получить большой бонус!</p>
     <p class="muted" id="goldenStatus">Она где-то летает… 🐝</p>
     <div class="nectar-rain-banner" id="nectarRainStatus">🌧️ Нектаропад через 5:00</div>
-    <div class="hunt-panel"><div><strong>🌸 Охота за пыльцой</strong><p id="pollenHuntStatus">Скоро появятся волшебные цветы — успей собрать их!</p></div><div class="hunt-score" id="pollenHuntScore">0 🌼</div></div>
+    
   </section>
 
   <section class="section prestige">
@@ -895,7 +895,7 @@ document.getElementById("dailyButton").addEventListener("click",()=>{
 });
 let goldenTimer=null;
 let nectarRainTimer=null,nectarRainSpawn=null,nectarRainActive=false;
-let nectarRainNext=Date.now()+300000;
+let nectarRainNext=Date.now()+480000;
 function renderNectarRainStatus(){
  const el=document.getElementById("nectarRainStatus");
  if(nectarRainActive){el.classList.add("active");el.textContent="🌧️ НЕКТАРОПАД ИДЁТ! Лови падающий нектар!";}
@@ -931,7 +931,7 @@ function startNectarRain(){
  clearTimeout(nectarRainTimer);
  nectarRainTimer=setTimeout(()=>{
   clearInterval(nectarRainSpawn);nectarRainSpawn=null;
-  nectarRainActive=false;nectarRainNext=Date.now()+300000;
+  nectarRainActive=false;nectarRainNext=Date.now()+480000;
   renderNectarRainStatus();showToast("Нектаропад закончился! До следующего — 5 минут 🐝");
  },20000);
 }
@@ -939,50 +939,8 @@ setInterval(()=>{
  if(!nectarRainActive&&Date.now()>=nectarRainNext)startNectarRain();
  renderNectarRainStatus();
 },1000);
-/* Мини-игра: охота за волшебной пыльцой */
-let pollenHuntActive=false,pollenHuntScore=0,pollenHuntSpawn=null,pollenHuntEnd=null,pollenHuntNext=null;
-function updatePollenHunt(){
- const el=document.getElementById("pollenHuntStatus"),score=document.getElementById("pollenHuntScore");
- if(!el||!score)return;
- score.textContent=pollenHuntScore+" 🌼";
- if(pollenHuntActive)el.textContent="Лови цветы! Осталось "+Math.max(0,Math.ceil((pollenHuntEnd-Date.now())/1000))+" сек.";
- else if(pollenHuntNext)el.textContent="Следующая охота через "+Math.max(0,Math.ceil((pollenHuntNext-Date.now())/1000))+" сек.";
-}
-function spawnPollenFlower(){
- if(!pollenHuntActive)return;
- const flower=document.createElement("button");flower.type="button";flower.className="pollen-flower";
- flower.textContent=["🌼","🌸","🌺","🍀"][Math.floor(Math.random()*4)];
- flower.setAttribute("aria-label","Поймать цветок с пыльцой");
- flower.style.left=Math.max(8,Math.random()*(window.innerWidth-66))+"px";
- flower.style.top=Math.max(90,Math.random()*(window.innerHeight-160))+"px";
- let caught=false;
- flower.onclick=()=>{
-  if(caught||!pollenHuntActive)return;caught=true;pollenHuntScore++;
-  const tiny=Math.max(1,Math.floor(income()*.15+clickPower()));
-  gain(tiny);flower.remove();updatePollenHunt();render();
- };
- document.body.appendChild(flower);
- setTimeout(()=>flower.remove(),1700);
-}
-function startPollenHunt(){
- pollenHuntActive=true;pollenHuntScore=0;pollenHuntEnd=Date.now()+18000;
- showToast("🌸 ОХОТА ЗА ПЫЛЬЦОЙ! Лови волшебные цветы!");
- updatePollenHunt();spawnPollenFlower();
- pollenHuntSpawn=setInterval(spawnPollenFlower,650);
- pollenHuntEndTimer=setTimeout(()=>{
-  clearInterval(pollenHuntSpawn);pollenHuntActive=false;
-  document.querySelectorAll(".pollen-flower").forEach(x=>x.remove());
-  const reward=Math.floor(pollenHuntScore*(100+income()*2+clickPower()*4));
-  if(pollenHuntScore>0){gain(reward);const honeyBonus=Math.floor(pollenHuntScore/8);state.honey+=honeyBonus;save();render();showToast("Охота окончена! "+pollenHuntScore+" цветов · +"+format(reward)+" нектара"+(honeyBonus?" и +"+honeyBonus+" 🍯":""));}
-  else showToast("Цветы разлетелись… В следующий раз лови быстрее!");
-  pollenHuntNext=Date.now()+90000+Math.random()*60000;updatePollenHunt();
- },18000);
-}
-let pollenHuntEndTimer=null;
-pollenHuntNext=Date.now()+45000;
-setInterval(()=>{if(!pollenHuntActive&&Date.now()>=pollenHuntNext)startPollenHunt();updatePollenHunt()},1000);
 function scheduleGoldenBee(){
- clearTimeout(goldenTimer);goldenTimer=setTimeout(showGoldenBee,35000+Math.random()*30000);
+ clearTimeout(goldenTimer);goldenTimer=setTimeout(showGoldenBee,90000+Math.random()*60000);
 }
 function showGoldenBee(){
  const bee=document.getElementById("goldenBee");bee.classList.add("show");

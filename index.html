@@ -38,6 +38,7 @@ h2{margin:0 0 15px;font-size:22px}
 .bee{width:175px;height:175px;border-radius:50%;display:grid;place-items:center;font-size:105px;background:radial-gradient(circle,#fff8cf,#ffe7a0);box-shadow:0 12px 35px #dba32b35,inset 0 0 25px #fff;transition:transform .12s;user-select:none;cursor:pointer;animation:beeFloat 3s ease-in-out infinite}
 .bee:active{transform:scale(.88)}
 @keyframes beeFloat{50%{transform:translateY(-7px)}}
+.meadow-field{position:relative;width:100%;height:205px;margin-top:17px;border:2px solid #d9e8ae;border-radius:20px;overflow:hidden;background:linear-gradient(180deg,#dff5c9 0%,#c8e9a9 58%,#a8d58d 59%,#bde39b 100%);box-shadow:inset 0 -12px 0 #8fc47755;isolation:isolate}.meadow-field:before,.meadow-field:after{content:"";position:absolute;bottom:16px;width:130px;height:55px;border-radius:50%;background:#83c47b55;filter:blur(2px);z-index:-1}.meadow-field:before{left:8%}.meadow-field:after{right:6%;width:180px;height:70px}.meadow-hud{position:absolute;z-index:2;left:10px;right:10px;top:8px;display:flex;justify-content:space-between;gap:8px;align-items:center;color:#416b36;font-size:12px;font-weight:900;pointer-events:none}.meadow-hud span{font-size:11px;text-align:right}.meadow-tip{position:absolute;bottom:7px;left:10px;color:#527b43;font-size:10px;font-weight:900;pointer-events:none}.meadow-flower{position:absolute;z-index:3;width:47px;height:47px;border:0;border-radius:50%;background:#ffffffb8;box-shadow:0 4px 12px #507c3d44;font-size:29px;display:grid;place-items:center;cursor:pointer;touch-action:manipulation;animation:meadowDrift var(--drift,3.5s) ease-in-out infinite alternate,flowerPop .2s ease-out;transition:filter .15s}.meadow-flower:hover{filter:brightness(1.1);transform:scale(1.12)}.meadow-flower.gold{background:#fff1a8;box-shadow:0 0 0 4px #ffe06a55,0 5px 18px #ba8b2a66}.meadow-flower.crystal{background:#e2f7ff;box-shadow:0 0 0 4px #91d9ff66,0 5px 18px #4c9dca66}.meadow-flower:active{transform:scale(.8)}@keyframes meadowDrift{from{translate:-10px 0;rotate:-12deg}to{translate:var(--move,45px) -13px;rotate:15deg}}@media(max-width:480px){.meadow-field{height:190px}.meadow-flower{width:43px;height:43px;font-size:26px}}
 .click-hint{color:var(--muted);font-weight:800;margin-top:17px}
 .combo-meter{width:min(260px,90%);height:10px;border-radius:20px;background:#eadfc8;overflow:hidden;margin-top:10px}.combo-meter div{height:100%;width:0;background:linear-gradient(90deg,#a8d86b,#f2bf36);transition:width .15s}.combo-label{font-size:13px;font-weight:900;color:#a16e12;margin-top:6px;min-height:20px}
 .float-text{position:fixed;pointer-events:none;font-weight:900;font-size:22px;color:#d89510;text-shadow:0 2px white;z-index:10;animation:rise .8s ease-out forwards}
@@ -201,6 +202,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
     <section class="panel click-zone">
       <h2>Собирай нектар!</h2>
       <div class="bee" id="bee">🐝</div>
+      <div class="meadow-field" id="meadowField" aria-label="Поле для сбора нектара"><div class="meadow-hud"><strong>🌷 Цветущий луг</strong><span id="meadowStatus">Лови цветы — они не стоят на месте!</span></div><div class="meadow-tip">🌼 обычный · 🌻 золотой · 💎 кристальный</div></div>
       <div class="click-hint">Нажимай на пчёлку, чтобы собирать нектар</div>
       <p class="muted" id="clickPower">За нажатие: +1</p>
       <div class="combo-meter"><div id="comboFill"></div></div><div class="combo-label" id="comboStatus">🔥 Серия кликов: 0 · бонус до x2</div>
@@ -431,7 +433,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -461,6 +463,7 @@ try{
   state.crystals=Math.max(0,Number(old.crystals)||0);
   state.eventTokens=Math.max(0,Number(old.eventTokens)||0);
   state.mutations=Math.max(0,Number(old.mutations)||0);
+  state.meadowHarvest=Math.max(0,Number(old.meadowHarvest)||0);
   if(!state.unlocked.includes("garden"))state.unlocked.push("garden");
   if(!worldData.some(w=>w.id===state.world))state.world="garden";
  }
@@ -508,6 +511,38 @@ function updateComboUI(){
  if(fill)fill.style.width=(Math.min(clickCombo,25)/25*100)+"%";
  if(label)label.textContent=clickCombo>0?"🔥 Серия: "+clickCombo+"/25 · множитель x"+factor.toFixed(2):"🔥 Серия кликов: 0 · бонус до x2";
 }
+/* Постоянная активная игровая зона: цветы появляются и летают непрерывно */
+let meadowStreak=0,meadowLastCatch=0,meadowStreakTimer=null;
+function updateMeadowHUD(){
+ const el=document.getElementById("meadowStatus");if(!el)return;
+ el.textContent="🌼 Собрано: "+format(state.meadowHarvest||0)+" · серия: "+meadowStreak+" · бонус x"+(1+Math.min(meadowStreak,15)*.08).toFixed(2);
+}
+function spawnMeadowFlower(){
+ const field=document.getElementById("meadowField");if(!field||field.querySelectorAll(".meadow-flower").length>=6)return;
+ const roll=Math.random(),kind=roll<.055?"crystal":roll<.24?"gold":"normal";
+ const flower=document.createElement("button");flower.type="button";flower.className="meadow-flower"+(kind==="normal"?"":" "+kind);
+ flower.textContent=kind==="crystal"?"💎":kind==="gold"?"🌻":["🌼","🌸","🌺","🍀"][Math.floor(Math.random()*4)];
+ flower.setAttribute("aria-label",kind==="crystal"?"Кристальный цветок":kind==="gold"?"Золотой цветок":"Цветок с нектаром");
+ flower.style.left=(4+Math.random()*84)+"%";flower.style.top=(38+Math.random()*42)+"%";
+ flower.style.setProperty("--drift",(2.2+Math.random()*2.8)+"s");flower.style.setProperty("--move",(20+Math.random()*65)+"px");
+ let caught=false;
+ flower.addEventListener("click",()=>{
+  if(caught)return;caught=true;
+  const now=Date.now();meadowStreak=now-meadowLastCatch<2600?Math.min(15,meadowStreak+1):1;meadowLastCatch=now;
+  clearTimeout(meadowStreakTimer);meadowStreakTimer=setTimeout(()=>{meadowStreak=0;updateMeadowHUD()},2800);
+  const combo=1+meadowStreak*.08;
+  const rarity=kind==="crystal"?12:kind==="gold"?5:1;
+  const reward=Math.max(1,Math.floor((clickPower()+income()*.35)*combo*rarity));
+  gain(reward);state.meadowHarvest=(state.meadowHarvest||0)+1;
+  if(kind==="crystal"){state.crystals++;showToast("💎 Кристальный цветок! +1 кристалл и +"+format(reward)+" нектара");}
+  else if(kind==="gold"){state.honey+=1;showToast("🌻 Золотой цветок! +1 мёд и +"+format(reward)+" нектара");}
+  else{const rect=flower.getBoundingClientRect();const pop=document.createElement("div");pop.className="float-text";pop.textContent="+"+format(reward)+" 💧";pop.style.left=rect.left+"px";pop.style.top=rect.top+"px";document.body.appendChild(pop);setTimeout(()=>pop.remove(),850);}
+  flower.remove();updateMeadowHUD();render();save();
+ });
+ field.appendChild(flower);
+ setTimeout(()=>flower.remove(),6200);
+}
+setInterval(spawnMeadowFlower,1050);
 function clickBee(e){
  state.questClicks++;
  const now=Date.now();
@@ -830,7 +865,7 @@ function render(){
  document.getElementById("worldTitle").textContent=w.emoji+" "+w.name;
  document.getElementById("worldDescription").textContent=w.description;
  document.getElementById("worldEmoji").textContent=w.emoji;
- renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();
+ renderUpgrades();renderWorlds();renderPrestige();renderAchievements();renderDaily();renderExpedition();renderQuests();renderStocks();renderKingdom();updateMeadowHUD();
 }
 document.getElementById("rebirthButton").addEventListener("click",()=>{
  if(state.nectar<100000)return;

@@ -309,7 +309,7 @@ const SAVE_KEY="beeRespectClicker";
    b.setAttribute('aria-current',active?'page':'false');
   });
   try{localStorage.setItem('beeClickerActiveTab',id)}catch(e){}
-  window.scrollTo({top:0,behavior:'smooth'});
+  pages[id].scrollIntoView({behavior:'smooth',block:'start'});
  }
  tabs.forEach(t=>{
   const button=document.createElement('button');

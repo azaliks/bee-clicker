@@ -114,6 +114,12 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 @media(max-width:650px){.stock-grid{grid-template-columns:1fr}.stock-summary{grid-template-columns:1fr}}
 .quest-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 @media(max-width:650px){.quest-list{grid-template-columns:1fr}}
+.nectar-drop{position:fixed;z-index:35;top:-75px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-size:34px;background:radial-gradient(circle,#fff9c9,#ffd54a);box-shadow:0 5px 18px #b7832580;border:3px solid #fff6c2;animation:nectarFall 4.6s linear forwards;cursor:pointer;touch-action:manipulation;user-select:none}
+.nectar-drop:active{transform:scale(.8)}
+@keyframes nectarFall{to{top:110vh;transform:rotate(360deg)}}
+.nectar-rain-banner{background:linear-gradient(120deg,#fff4b8,#ffe08a);border:1px solid #f5d16a;border-radius:17px;padding:13px 16px;margin-top:12px;color:#79530c;font-weight:900}
+.nectar-rain-banner.active{background:linear-gradient(120deg,#fff1a3,#ffc94d);box-shadow:0 0 22px #f4c64a66;animation:rainPulse 1s ease-in-out infinite alternate}
+@keyframes rainPulse{to{transform:scale(1.01)}}
 </style>
 </head>
 <body>
@@ -174,6 +180,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
     <h2>✨ Золотая пчёлка</h2>
     <p class="muted">Иногда появляется золотая пчёлка. Успей нажать на неё, чтобы получить большой бонус!</p>
     <p class="muted" id="goldenStatus">Она где-то летает… 🐝</p>
+    <div class="nectar-rain-banner" id="nectarRainStatus">🌧️ Нектаропад через 5:00</div>
   </section>
 
   <section class="section prestige">
@@ -536,6 +543,51 @@ document.getElementById("dailyButton").addEventListener("click",()=>{
  render();save();showToast("Ежедневный подарок: +"+format(bonus)+" 🍯");
 });
 let goldenTimer=null;
+let nectarRainTimer=null,nectarRainSpawn=null,nectarRainActive=false;
+let nectarRainNext=Date.now()+300000;
+function renderNectarRainStatus(){
+ const el=document.getElementById("nectarRainStatus");
+ if(nectarRainActive){el.classList.add("active");el.textContent="🌧️ НЕКТАРОПАД ИДЁТ! Лови падающий нектар!";}
+ else{
+  el.classList.remove("active");
+  const left=Math.max(0,Math.ceil((nectarRainNext-Date.now())/1000));
+  const min=Math.floor(left/60),sec=left%60;
+  el.textContent="🌧️ Следующий нектаропад через "+min+":"+String(sec).padStart(2,"0");
+ }
+}
+function spawnNectarDrop(){
+ const drop=document.createElement("button");
+ drop.className="nectar-drop";drop.type="button";drop.textContent=Math.random()<.18?"💎":"🍯";
+ drop.setAttribute("aria-label","Собрать падающий нектар");
+ drop.style.left=Math.max(8,Math.random()*(window.innerWidth-66))+"px";
+ const reward=Math.max(15,Math.floor(25+income()*2+clickPower()*5));
+ let collected=false;
+ drop.addEventListener("click",()=>{
+  if(collected)return;collected=true;
+  gain(reward);drop.remove();render();save();
+  const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(reward)+" 🍯";
+  t.style.left=drop.style.left;t.style.top=Math.max(80,window.innerHeight*.35)+"px";
+  document.body.appendChild(t);setTimeout(()=>t.remove(),850);
+ });
+ document.body.appendChild(drop);
+ setTimeout(()=>drop.remove(),4800);
+}
+function startNectarRain(){
+ nectarRainActive=true;renderNectarRainStatus();
+ showToast("🌧️ НАЧАЛСЯ НЕКТАРОПАД! Лови капельки!");
+ spawnNectarDrop();
+ nectarRainSpawn=setInterval(spawnNectarDrop,430);
+ clearTimeout(nectarRainTimer);
+ nectarRainTimer=setTimeout(()=>{
+  clearInterval(nectarRainSpawn);nectarRainSpawn=null;
+  nectarRainActive=false;nectarRainNext=Date.now()+300000;
+  renderNectarRainStatus();showToast("Нектаропад закончился! До следующего — 5 минут 🐝");
+ },20000);
+}
+setInterval(()=>{
+ if(!nectarRainActive&&Date.now()>=nectarRainNext)startNectarRain();
+ renderNectarRainStatus();
+},1000);
 function scheduleGoldenBee(){
  clearTimeout(goldenTimer);goldenTimer=setTimeout(showGoldenBee,35000+Math.random()*30000);
 }
@@ -565,7 +617,7 @@ setInterval(()=>{
  if(amount>0){gain(amount);render()}
  save();
 },1000);
-applyWorld();render();scheduleGoldenBee();
+applyWorld();render();renderNectarRainStatus();scheduleGoldenBee();
 setInterval(updateStockPrices,15000);
 </script>
 </body>

@@ -839,18 +839,21 @@ document.getElementById("rebirthButton").addEventListener("click",()=>{
  worldData.forEach(w=>{if(state.rebirths>=w.requirement&&!state.unlocked.includes(w.id))state.unlocked.push(w.id)});
  state.world="garden";applyWorld();save();render();showToast("Новое перерождение! ✨");
 });
-const DAILY_KEY="beeRespectDaily";
+const DAILY_KEY="beeRespectDaily",STREAK_KEY="beeRespectStreak";
 let dailyDate=localStorage.getItem(DAILY_KEY)||"";
+let dailyStreak=Math.max(0,Number(localStorage.getItem(STREAK_KEY))||0);
 function todayKey(){const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function yesterdayKey(){const d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate()}
+function dailyReward(){return Math.floor((500+state.rebirths*250)*(1+Math.min(dailyStreak,6)*.1))}
 function renderDaily(){
  const claimed=dailyDate===todayKey();
  document.getElementById("dailyButton").disabled=claimed;
  document.getElementById("dailyButton").textContent=claimed?"Уже получено ✓":"Забрать награду";
- document.getElementById("dailyText").textContent=claimed?"Возвращайся завтра за новым подарком!":"Твой подарок сегодня: "+format(500+state.rebirths*250)+" нектара 💧";
+ document.getElementById("dailyText").textContent=claimed?"Серия: "+dailyStreak+" дн. 🔥 · Возвращайся завтра!":"Серия: "+dailyStreak+" дн. 🔥 · Награда: "+format(dailyReward())+" нектара 💧 · бонус серии до +60%";
 }
 document.getElementById("dailyButton").addEventListener("click",()=>{
  if(dailyDate===todayKey())return;
- const bonus=500+state.rebirths*250;gain(bonus);dailyDate=todayKey();localStorage.setItem(DAILY_KEY,dailyDate);
+ dailyStreak=dailyDate===yesterdayKey()?dailyStreak+1:1;const bonus=dailyReward();gain(bonus);dailyDate=todayKey();localStorage.setItem(DAILY_KEY,dailyDate);localStorage.setItem(STREAK_KEY,String(dailyStreak));
  render();save();showToast("Ежедневный подарок: +"+format(bonus)+" 💧");
 });
 let goldenTimer=null;

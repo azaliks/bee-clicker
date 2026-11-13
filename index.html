@@ -39,6 +39,7 @@ h2{margin:0 0 15px;font-size:22px}
 .bee:active{transform:scale(.88)}
 @keyframes beeFloat{50%{transform:translateY(-7px)}}
 .click-hint{color:var(--muted);font-weight:800;margin-top:17px}
+.combo-meter{width:min(260px,90%);height:10px;border-radius:20px;background:#eadfc8;overflow:hidden;margin-top:10px}.combo-meter div{height:100%;width:0;background:linear-gradient(90deg,#a8d86b,#f2bf36);transition:width .15s}.combo-label{font-size:13px;font-weight:900;color:#a16e12;margin-top:6px;min-height:20px}
 .float-text{position:fixed;pointer-events:none;font-weight:900;font-size:22px;color:#d89510;text-shadow:0 2px white;z-index:10;animation:rise .8s ease-out forwards}
 @keyframes rise{to{transform:translateY(-80px);opacity:0}}
 .btn{border-radius:14px;padding:12px 18px;font-weight:900;background:linear-gradient(135deg,#ffd65e,#f4ad29);color:#65450b;box-shadow:0 5px 14px #d9a42b30;transition:.2s}
@@ -201,6 +202,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
       <div class="bee" id="bee">🐝</div>
       <div class="click-hint">Нажимай на пчёлку, чтобы собирать нектар</div>
       <p class="muted" id="clickPower">За нажатие: +1</p>
+      <div class="combo-meter"><div id="comboFill"></div></div><div class="combo-label" id="comboStatus">🔥 Серия кликов: 0 · бонус до x2</div>
     </section>
     <section class="panel">
       <h2>🛠️ Улучшения</h2>
@@ -496,11 +498,25 @@ setInterval(save,5000);
 window.addEventListener("pagehide",save);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")save()});
 function gain(amount){const before=state.totalNectar;state.nectar+=amount;state.totalNectar+=amount;const progress=state.honeyRemainder+amount*(1+state.honeyTech*.25)/5000;const made=Math.floor(progress);state.honey+=made;state.honeyRemainder=progress-made;state.eventTokens+=Math.max(0,Math.floor(state.totalNectar/1000)-Math.floor(before/1000))}
+let clickCombo=0,lastComboClick=0,comboResetTimer=null;
+function updateComboUI(){
+ const factor=1+Math.min(clickCombo,25)*.04;
+ const fill=document.getElementById("comboFill");
+ const label=document.getElementById("comboStatus");
+ if(fill)fill.style.width=(Math.min(clickCombo,25)/25*100)+"%";
+ if(label)label.textContent=clickCombo>0?"🔥 Серия: "+clickCombo+"/25 · множитель x"+factor.toFixed(2):"🔥 Серия кликов: 0 · бонус до x2";
+}
 function clickBee(e){
  state.questClicks++;
- const amount=clickPower();gain(amount);
+ const now=Date.now();
+ clickCombo=now-lastComboClick<=1300?Math.min(25,clickCombo+1):1;
+ lastComboClick=now;
+ const comboFactor=1+clickCombo*.04;
+ const amount=clickPower()*comboFactor;gain(amount);
+ updateComboUI();
+ clearTimeout(comboResetTimer);comboResetTimer=setTimeout(()=>{clickCombo=0;lastComboClick=0;updateComboUI()},1400);
  const rect=e.currentTarget.getBoundingClientRect();
- const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(amount)+" 💧";
+ const t=document.createElement("div");t.className="float-text";t.textContent="+"+format(amount)+" 💧"+(clickCombo>=3?" x"+comboFactor.toFixed(2):"");
  t.style.left=(rect.left+rect.width/2)+"px";t.style.top=(rect.top+rect.height/2)+"px";
  document.body.appendChild(t);setTimeout(()=>t.remove(),850);render();
 }

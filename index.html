@@ -161,6 +161,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 .kingdom-card .btn{margin:4px 4px 0 0}
 .kingdom-metric{font-size:25px;font-weight:900;color:#bd8617}
 .bee-collection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.bee-unit button{margin-top:7px;width:100%;padding:7px 4px;font-size:11px;border-radius:9px;background:#f5d879;color:#65450b;font-weight:900}.bee-unit button.equipped{background:#d8f0d5;color:#27643a}.equipment-panel{margin-top:12px;padding:12px;background:#fff8e8;border:1px solid #efdfb9;border-radius:15px}.equipment-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:9px}.equipment-slot{padding:10px 5px;text-align:center;border:1px dashed #d8bd7c;border-radius:12px;background:#fff;font-weight:900}.equipment-slot strong{display:block;font-size:12px}.equipment-slot small{color:#947e58;font-size:10px}
 .bee-unit{background:#fff8e8;border:1px solid #f0dfb8;border-radius:13px;padding:9px;text-align:center;min-width:0}
 .bee-unit .emoji{font-size:27px}.bee-unit strong{display:block;font-size:12px}.bee-unit small{color:#947e58;font-weight:800;font-size:11px}
 .rarity-common{border-color:#d9d9d9}.rarity-uncommon{border-color:#76bd87}.rarity-rare{border-color:#62a8e8}.rarity-epic{border-color:#b28be8}.rarity-legendary{border-color:#e8b844;background:#fff8d9}.rarity-mythic{border-color:#ec8cba;background:#fff0f7}
@@ -306,6 +307,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
         <p id="eggInfo">Вылупляй пчёл разных редкостей. Каждая пчела усиливает улей!</p>
         <div class="kingdom-actions"><button class="btn" id="hatchEgg">Вылупить яйцо · 8 🍯</button></div>
         <div class="bee-collection" id="beeCollection"></div>
+        <div class="equipment-panel"><strong>⚔️ Экипировка для боссов</strong><p class="muted" style="margin:5px 0">Выбери до 3 пчёл. Они будут сражаться с тобой и наносить дополнительный урон.</p><div class="equipment-slots" id="equipmentSlots"></div><small class="muted" id="equipmentDamage"></small></div>
       </div>
       <div class="kingdom-card">
         <h3>🏘️ Город улья</h3>
@@ -425,7 +427,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -448,6 +450,7 @@ try{
   state.stockChanges=old.stockChanges&&typeof old.stockChanges==="object"?old.stockChanges:{};
   state.queenLevel=Math.max(1,Number(old.queenLevel)||1);
   state.bees=Array.isArray(old.bees)?old.bees:[];
+  state.equippedBees=Array.isArray(old.equippedBees)?old.equippedBees.filter(i=>Number.isInteger(i)&&i>=0&&i<state.bees.length).slice(0,3):[];
   state.buildings={apiary:0,greenhouse:0,workshop:0,...(old.buildings||{})};
   state.bossWins=Math.max(0,Number(old.bossWins)||0);
   state.bossHp=Math.max(1,Math.min(100,Number(old.bossHp)||100));
@@ -697,6 +700,14 @@ const buildingData=[
 ];
 const bossNames=["Дикий шершень","Королева ос","Паук-похититель","Древний скорпион","Теневой дракон"];
 function beeById(id){return beeTypes.find(b=>b.id===id)||beeTypes[0]}
+function bossBeeDamage(id){const damage={worker:10,clover:16,ice:24,fire:34,gold:50,rainbow:75};return damage[id]||0}
+function toggleBeeEquipment(index){
+ const slot=state.equippedBees.indexOf(index);
+ if(slot>=0){state.equippedBees.splice(slot,1);showToast("Пчёлка снята с экипировки");}
+ else if(state.equippedBees.length>=3){showToast("Можно экипировать только 3 пчёлки!");return;}
+ else{state.equippedBees.push(index);showToast("Пчёлка готова к битве! ⚔️");}
+ save();render();
+}
 function renderKingdom(){
  const qCost=Math.floor(25*Math.pow(1.85,state.queenLevel-1));
  document.getElementById("queenLevel").textContent="Уровень "+state.queenLevel;
@@ -710,10 +721,20 @@ function renderKingdom(){
  const collection=document.getElementById("beeCollection");collection.innerHTML="";
  if(!state.bees.length){collection.innerHTML='<div class="muted">Пока нет пчёл. Вылупи первое яйцо!</div>';}
  state.bees.forEach((id,index)=>{
-  const b=beeById(id),el=document.createElement("div");el.className="bee-unit rarity-"+b.className;
-  el.innerHTML='<div class="emoji">'+b.emoji+'</div><strong>'+b.name+'</strong><small>'+b.rarity+'</small>';
+  const b=beeById(id),isEquipped=state.equippedBees.includes(index),el=document.createElement("div");el.className="bee-unit rarity-"+b.className;
+  el.innerHTML='<div class="emoji">'+b.emoji+'</div><strong>'+b.name+'</strong><small>'+b.rarity+'</small><button type="button" class="'+(isEquipped?'equipped':'')+'">'+(isEquipped?'Снять':'Экипировать')+'</button>';
+  el.querySelector("button").addEventListener("click",()=>toggleBeeEquipment(index));
   collection.appendChild(el);
  });
+ const slots=document.getElementById("equipmentSlots");slots.innerHTML="";
+ for(let slot=0;slot<3;slot++){
+  const index=state.equippedBees[slot],el=document.createElement("div");el.className="equipment-slot";
+  if(index!==undefined){const b=beeById(state.bees[index]);el.innerHTML='<div>'+b.emoji+'</div><strong>'+b.name+'</strong><small>Слот '+(slot+1)+'</small>';}
+  else el.innerHTML='<div>➕</div><strong>Пусто</strong><small>Слот '+(slot+1)+'</small>';
+  slots.appendChild(el);
+ }
+ const equippedDamage=state.equippedBees.reduce((sum,index)=>sum+bossBeeDamage(state.bees[index]),0);
+ document.getElementById("equipmentDamage").textContent="Дополнительный урон от команды: +"+equippedDamage+"% за атаку";
  const egg=document.getElementById("hatchEgg");egg.disabled=state.honey<8;
  const city=document.getElementById("cityBuildings");city.innerHTML="";
  buildingData.forEach(b=>{
@@ -726,7 +747,8 @@ function renderKingdom(){
  const bossIndex=state.bossWins%bossNames.length,health=state.bossHp;
  document.getElementById("bossName").textContent=["🐝","👑","🕷️","🦂","🐉"][bossIndex]+" "+bossNames[bossIndex];
  document.getElementById("bossHealth").style.width=health+"%";
- document.getElementById("bossInfo").textContent="Здоровье: "+Math.ceil(state.bossHp)+"% · Побед: "+state.bossWins+" · За победу: "+format(1500+state.bossWins*500)+" нектара и 1 💎";
+ const teamDamage=state.equippedBees.reduce((sum,index)=>sum+bossBeeDamage(state.bees[index]),0);
+ document.getElementById("bossInfo").textContent="Здоровье: "+Math.ceil(state.bossHp)+"% · Побед: "+state.bossWins+" · Урон команды: "+(10+state.queenLevel*2+teamDamage)+"% · Награда: "+format(1500+state.bossWins*500)+" нектара и 1 💎";
  const attack=document.getElementById("bossAttack"),bossCost=Math.floor(10*Math.pow(1.35,state.bossWins));
  attack.textContent="Атаковать · "+format(bossCost)+" 🍯";attack.disabled=state.honey<bossCost;
  document.getElementById("labInfo").textContent="Кристаллы: "+state.crystals+" 💎 · Проведено мутаций: "+state.mutations;
@@ -751,7 +773,7 @@ document.getElementById("queenUpgrade").addEventListener("click",()=>{
 });
 document.getElementById("bossAttack").addEventListener("click",()=>{
  const price=Math.floor(10*Math.pow(1.35,state.bossWins));if(state.honey<price)return;
- state.honey-=price;const damage=Math.min(state.bossHp,20+state.queenLevel*2+state.bees.length*2);state.bossHp-=damage;
+ state.honey-=price;const teamDamage=state.equippedBees.reduce((sum,index)=>sum+bossBeeDamage(state.bees[index]),0);const damage=Math.min(state.bossHp,10+state.queenLevel*2+teamDamage);state.bossHp-=damage;
  if(state.bossHp<=0){state.bossWins++;state.bossHp=100;const reward=1500+(state.bossWins-1)*500;gain(reward);state.crystals++;save();render();showToast("Босс повержен! +"+format(reward)+" нектара и 1 💎");}
  else{save();render();showToast("Попадание! Урон: "+damage+"% ⚔️");}
 });

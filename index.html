@@ -455,7 +455,7 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- return {nectar:0,totalNectar:0,ownedShopItems:[],equippedWing:"",equippedSkin:"bee",meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,ownedShopItems:[],equippedWing:"",equippedSkin:"bee",meadowHarvest:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,expeditionLoot:"",questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],equippedBees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
@@ -470,6 +470,7 @@ try{
   state.hiveLevel=Math.max(1,Number(old.hiveLevel)||1);
   state.expeditionFinish=Math.max(0,Number(old.expeditionFinish)||0);
   state.expeditionReward=Math.max(0,Number(old.expeditionReward)||0);
+  state.expeditionLoot=["crystal","nectar",""].includes(old.expeditionLoot)?old.expeditionLoot:"";
   state.questClicks=Math.max(0,Number(old.questClicks)||0);
   state.expeditionsCompleted=Math.max(0,Number(old.expeditionsCompleted)||0);
   state.claimedQuests=Array.isArray(old.claimedQuests)?old.claimedQuests:[];
@@ -643,10 +644,10 @@ function renderExpedition(){
   status.textContent="Вернутся через "+left+" сек. Награда: "+format(state.expeditionReward)+" нектара";
  }else if(state.expeditionFinish>0){
   button.disabled=false;button.textContent="Забрать награду";
-  status.textContent="Экспедиция завершена! Пчёлки нашли целый цветочный луг.";
+  status.textContent="Экспедиция завершена! "+(state.expeditionLoot==="crystal"?"🎁 Нашли редкий кристалл!":state.expeditionLoot==="nectar"?"🌼 Нашли тайный цветник — дополнительный нектар!":"Пчёлки вернулись с обычной добычей.");
  }else{
   button.disabled=false;button.textContent="Отправить пчёл";
-  status.textContent="Награда за экспедицию: около "+format(expeditionRewardValue())+" нектара";
+  status.textContent="Награда: около "+format(expeditionRewardValue())+" нектара · шанс редкой находки!";
  }
  const cost=Math.floor(1000*Math.pow(1.8,state.hiveLevel-1));
  document.getElementById("hiveLevel").textContent="Уровень "+state.hiveLevel;
@@ -660,10 +661,14 @@ document.getElementById("expeditionButton").addEventListener("click",()=>{
  if(state.expeditionFinish>now)return;
  if(state.expeditionFinish>0){
   const reward=state.expeditionReward;gain(reward);
-  state.expeditionFinish=0;state.expeditionReward=0;state.expeditionsCompleted++;
-  showToast("Экспедиция вернулась! +"+format(reward)+" нектара 🌷");
+  let lootText="";
+  if(state.expeditionLoot==="crystal"){state.crystals++;lootText=" +1 💎 редкий кристалл!";}
+  else if(state.expeditionLoot==="nectar"){const bonus=Math.floor(reward*.5);gain(bonus);lootText=" +"+format(bonus)+" 💧 из тайного цветника!";}
+  state.expeditionFinish=0;state.expeditionReward=0;state.expeditionLoot="";state.expeditionsCompleted++;
+  showToast("Экспедиция вернулась! +"+format(reward)+" нектара"+lootText);
  }else{
   state.expeditionReward=expeditionRewardValue();
+  const lootRoll=Math.random();state.expeditionLoot=lootRoll<.12?"crystal":lootRoll<.42?"nectar":"";
   state.expeditionFinish=now+60000;
   showToast("Пчёлки отправились в экспедицию! 🧭");
  }

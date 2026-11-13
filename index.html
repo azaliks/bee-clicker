@@ -120,7 +120,18 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 .nectar-rain-banner{background:linear-gradient(120deg,#fff4b8,#ffe08a);border:1px solid #f5d16a;border-radius:17px;padding:13px 16px;margin-top:12px;color:#79530c;font-weight:900}
 .nectar-rain-banner.active{background:linear-gradient(120deg,#fff1a3,#ffc94d);box-shadow:0 0 22px #f4c64a66;animation:rainPulse 1s ease-in-out infinite alternate}
 @keyframes rainPulse{to{transform:scale(1.01)}}
-</style>
+
+/* Компактная навигация по разделам */
+.main-nav{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 14px;margin:8px 0 2px;position:sticky;top:0;z-index:20;background:linear-gradient(140deg,#fff8dcef,#f9e9b9ef);backdrop-filter:blur(12px);scrollbar-width:none}
+.main-nav::-webkit-scrollbar{display:none}
+.main-nav button{flex:0 0 auto;border:1px solid #ead9b5;background:#ffffffd9;color:#705323;border-radius:14px;padding:10px 15px;font-weight:900;white-space:nowrap}
+.main-nav button.active{background:linear-gradient(135deg,#ffd65e,#f4ad29);border-color:#edbd4a;color:#65450b;box-shadow:0 4px 12px #d9a42b30}
+.tab-page{display:none;animation:tabIn .22s ease}
+.tab-page.active{display:block}
+@keyframes tabIn{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:none}}
+.tab-page>.section:first-child{margin-top:8px}
+@media(max-width:750px){.main-nav{margin-left:-20px;margin-right:-20px;padding-left:20px;padding-right:20px;top:0}.main-nav button{padding:10px 13px;font-size:13px}}
+\n</style>
 </head>
 <body>
 <header>
@@ -245,7 +256,56 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 <button class="golden-bee" id="goldenBee" aria-label="Поймать золотую пчёлку">🐝</button>
 
 <script>
-const SAVE_KEY="beeRespectClicker";
+const SAVE_KEY="beeRespectClicker";\n
+/* Собираем длинную страницу в удобные вкладки */
+(function setupTabs(){
+ const main=document.querySelector('main');
+ const children=[...main.children];
+ const nav=document.createElement('nav');
+ nav.className='main-nav';
+ nav.setAttribute('aria-label','Разделы игры');
+ const tabs=[
+  {id:'play',label:'🐝 Играть',match:e=>e.classList.contains('game-grid')||e.classList.contains('daily-panel')||heading(e,'Другие миры')},
+  {id:'activities',label:'🎯 Активности',match:e=>heading(e,'Задания пчелиной королевы')||heading(e,'Золотая пчёлка')||heading(e,'Экспедиции')},
+  {id:'worlds',label:'🌍 Миры',match:e=>heading(e,'Другие миры')},
+  {id:'market',label:'📈 Биржа',match:e=>heading(e,'Пчелиная биржа')},
+  {id:'progress',label:'🏆 Прогресс',match:e=>heading(e,'Достижения')||e.classList.contains('prestige')||heading(e,'Твоя пчелиная статистика')||e.style.textAlign==='center'}
+ ];
+ function heading(el,txt){const h=el.querySelector('h2');return !!h&&h.textContent.includes(txt)}
+ const pages={};
+ tabs.forEach(t=>{const page=document.createElement('div');page.className='tab-page';page.dataset.tabPage=t.id;pages[t.id]=page});
+ const worldSection=children.find(e=>heading(e,'Другие миры'));
+ children.forEach(el=>{
+  if(el===children[0]||el===children[1])return;
+  let tab='play';
+  if(el.classList.contains('game-grid')||el.classList.contains('daily-panel'))tab='play';
+  else if(heading(el,'Другие миры'))tab='worlds';
+  else if(heading(el,'Задания пчелиной королевы')||heading(el,'Золотая пчёлка')||heading(el,'Экспедиции'))tab='activities';
+  else if(heading(el,'Пчелиная биржа'))tab='market';
+  else if(heading(el,'Достижения')||el.classList.contains('prestige')||heading(el,'Твоя пчелиная статистика')||el.style.textAlign==='center')tab='progress';
+  pages[tab].appendChild(el);
+ });
+ // Миры доступны и на вкладке игры, и отдельно — без дублирования элементов.
+ if(worldSection&&pages.play!==pages.worlds){
+  const shortcut=document.createElement('div');shortcut.className='world-shortcut';
+  const btn=document.createElement('button');btn.className='btn secondary';btn.textContent='🌍 Выбрать другой мир';
+  btn.addEventListener('click',()=>switchTab('worlds'));shortcut.appendChild(btn);
+  pages.play.appendChild(shortcut);
+ }
+ function switchTab(id){
+  Object.entries(pages).forEach(([key,page])=>page.classList.toggle('active',key===id));
+  [...nav.children].forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  try{localStorage.setItem('beeClickerActiveTab',id)}catch(e){}
+  window.scrollTo({top:0,behavior:'smooth'});
+ }
+ tabs.forEach(t=>{const b=document.createElement('button');b.type='button';b.textContent=t.label;b.dataset.tab=t.id;b.addEventListener('click',()=>switchTab(t.id));nav.appendChild(b)});
+ const banner=children[0],stats=children[1];
+ main.insertBefore(nav,children[2]);
+ Object.values(pages).forEach(p=>main.appendChild(p));
+ let initial='play';try{const saved=localStorage.getItem('beeClickerActiveTab');if(pages[saved])initial=saved}catch(e){}
+ switchTab(initial);
+})();
+
 const worldData=[
 {id:"garden",name:"Цветущий сад",emoji:"🌻",description:"Начало твоего пчелиного приключения",requirement:0,multiplier:1,className:""},
 {id:"lavender",name:"Лавандовая долина",emoji:"💜",description:"Долина, наполненная ароматом лаванды",requirement:1,multiplier:1.5,className:"world-lavender"},

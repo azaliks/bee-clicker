@@ -274,7 +274,7 @@ footer{text-align:center;color:var(--muted);padding:20px;font-weight:700}
 <script>
 const SAVE_KEY="beeRespectClicker";
 
-/* Боковое меню разделов игры */
+/* Прямая боковая навигация по разделам */
 (function setupSideMenu(){
  const main=document.querySelector('main');
  const children=[...main.children];
@@ -298,30 +298,34 @@ const SAVE_KEY="beeRespectClicker";
   else if(heading(el,'Достижения')||el.classList.contains('prestige')||heading(el,'Твоя пчелиная статистика')||el.style.textAlign==='center')tab='progress';
   pages[tab].appendChild(el);
  });
- const dock=document.createElement('nav');dock.className='side-dock';dock.setAttribute('aria-label','Быстрая навигация');
- const menu=document.createElement('div');menu.className='side-menu';menu.setAttribute('aria-label','Меню разделов');
- const backdrop=document.createElement('div');backdrop.className='side-menu-backdrop';
- const title=document.createElement('div');title.className='side-menu-title';title.textContent='🐝 Разделы игры';menu.appendChild(title);
- function closeMenu(){menu.classList.remove('open');backdrop.classList.remove('open');dock.querySelectorAll('button').forEach(b=>b.classList.remove('active'))}
+ const dock=document.createElement('nav');
+ dock.className='side-dock';
+ dock.setAttribute('aria-label','Навигация по разделам игры');
  function switchTab(id){
   Object.entries(pages).forEach(([key,page])=>page.classList.toggle('active',key===id));
-  menu.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));
+  dock.querySelectorAll('button').forEach(b=>{
+   const active=b.dataset.tab===id;
+   b.classList.toggle('active',active);
+   b.setAttribute('aria-current',active?'page':'false');
+  });
   try{localStorage.setItem('beeClickerActiveTab',id)}catch(e){}
-  closeMenu();window.scrollTo({top:0,behavior:'smooth'});
+  window.scrollTo({top:0,behavior:'smooth'});
  }
  tabs.forEach(t=>{
-  const side=document.createElement('button');side.type='button';side.textContent=t.icon;side.title=t.label;side.setAttribute('aria-label',t.label);
-  side.addEventListener('click',()=>{const opening=!menu.classList.contains('open');closeMenu();if(opening){menu.classList.add('open');backdrop.classList.add('open');side.classList.add('active')}});
-  dock.appendChild(side);
-  const item=document.createElement('button');item.type='button';item.dataset.tab=t.id;item.innerHTML='<span style="font-size:21px">'+t.icon+'</span><span>'+t.label+'</span>';
-  item.addEventListener('click',()=>switchTab(t.id));menu.appendChild(item);
+  const button=document.createElement('button');
+  button.type='button';
+  button.dataset.tab=t.id;
+  button.textContent=t.icon;
+  button.title=t.label;
+  button.setAttribute('aria-label',t.label);
+  button.addEventListener('click',()=>switchTab(t.id));
+  dock.appendChild(button);
  });
- backdrop.addEventListener('click',closeMenu);
- document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
- document.body.appendChild(backdrop);document.body.appendChild(menu);document.body.appendChild(dock);
+ document.body.appendChild(dock);
  const banner=children[0],stats=children[1];
  Object.values(pages).forEach(p=>main.appendChild(p));
- let initial='play';try{const saved=localStorage.getItem('beeClickerActiveTab');if(pages[saved])initial=saved}catch(e){}
+ let initial='play';
+ try{const saved=localStorage.getItem('beeClickerActiveTab');if(pages[saved])initial=saved}catch(e){}
  switchTab(initial);
 })();
 const worldData=[

@@ -425,13 +425,13 @@ const achievements=[
 ];
 function defaultState(){
  const upgrades={};upgradeData.forEach(u=>upgrades[u.id]=0);
- rpollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
+ return {nectar:0,totalNectar:0,honey:0,honeyRemainder:0,honeyTech:0,pollen:0,rebirths:0,upgrades,world:"garden",unlocked:["garden"],earned:[],hiveLevel:1,expeditionFinish:0,expeditionReward:0,questClicks:0,expeditionsCompleted:0,claimedQuests:[],stockHoldings:{},stockPrices:{flower:100,honey:250,royal:600,lavender:1200},stockChanges:{},queenLevel:1,bees:[],buildings:{apiary:0,greenhouse:0,workshop:0},bossWins:0,bossHp:100,crystals:0,eventTokens:0,mutations:0};
 }
 let state=defaultState();
 try{
  const old=JSON.parse(localStorage.getItem(SAVE_KEY));
  if(old&&typeof old==="object"){
-  s
+  state={...state,...old};
   if(old.honey===undefined){state.honey=Math.floor((Number(old.totalNectar)||0)/100);state.honeyRemainder=(Number(old.totalNectar)||0)%100;}
   state.honey=Math.max(0,Number(state.honey)||0);state.honeyRemainder=Math.max(0,Number(state.honeyRemainder)||0);state.honeyTech=Math.max(0,Number(state.honeyTech)||0);
   state.upgrades={...defaultState().upgrades,...(old.upgrades||{})};
